@@ -3,12 +3,13 @@ using UnityEngine;
 
 // From: Jayanam Games
 // https://www.patreon.com/posts/unity-3d-drag-22917454
-public class Draggable : MonoBehaviour
+public class DraggableForce : MonoBehaviour
 {
     protected Vector3 mOffset;
     protected float mZCoord;
     protected Vector3 rotation;
     protected Rigidbody rb;
+    [SerializeField] protected float forceMultiplier = 2f;
     [SerializeField] protected bool isButtonDown = false;
     [SerializeField] protected float rotationScale = 1;
     [SerializeField] protected bool isRotatable = false;
@@ -22,7 +23,7 @@ public class Draggable : MonoBehaviour
     [SerializeField] protected Color movableColor = Color.yellow;
     [SerializeField] protected Color rotatableColor = Color.green;
     //private Renderer rnder;
-    [SerializeField] protected List<Color> startColors = new List<Color>();
+    protected List<Color> startColors = new List<Color>();
 
     public virtual void Start()
     {
@@ -128,7 +129,9 @@ public class Draggable : MonoBehaviour
     }
     protected virtual void Move()
     {
-        Vector3 mv = new(0f,0f,0f);
+        Vector3 mv = new Vector3(0f,0f,0f);
+        Vector3 force;
+        mv = transform.position;
         if (isMovableX)
         {
             mv.x = GetMouseAsWorldPoint().x + mOffset.x;
@@ -143,7 +146,9 @@ public class Draggable : MonoBehaviour
             //rt.z = rotation.z-(GetMouseAsWorldPoint() + rotation).x*rotationScale;
             mv.z = GetMouseAsWorldPoint().z + mOffset.z;
         }
-        transform.root.position = mv;
+        force = (mv - transform.position) * forceMultiplier;
+        rb.AddForce(force, ForceMode.Force);
+        //transform.root.position = mv;
     }
 
     protected virtual void Rotate()

@@ -120,9 +120,9 @@ public class RKF45
                 zState = AddArrays(state, ScalarMulti(coef_CH[0], k0), ScalarMulti(coef_CH[1], k1), ScalarMulti(coef_CH[2], k2), ScalarMulti(coef_CH[3], k3), ScalarMulti(coef_CH[4], k4), ScalarMulti(coef_CH[5], k5));
 
                 // The error is the difference between the two aproximations
-                double[] error = SubtractArrays(zState,yState);
+                double[] error = SubtractArrays(zState, yState);
 
-                bool errorBool = error.Any(element=>element>tolerance);
+                bool errorBool = error.Any(element => element > tolerance);
 
                 if (errorBool && counter2 < iterationLimit)
                 {
@@ -151,23 +151,7 @@ public class RKF45
     {
         return array.Select(r => r * scalar).ToArray();
     }
-    // public static double[] ArraySum(double[] arr1, double[] arr2)
-    // {
-    //     int n1 = arr1.Length;
-    //     int n2 = arr2.Length;
-    //     double[]  result = new double[n1];
-    //     if(n1!=n2)
-    //     {
-    //         throw new ArrayTypeMismatchException("The number of elements in arr1 and arr2 are different.");
-    //     }else
-    //     {
-    //         for(int i=0;i<n1;i++)
-    //         {
-    //             result[i] = arr1[i] + arr2[i];
-    //         }
-    //     }
-    //     return result;
-    // }
+
     public double[] AddArrays(params double[][] arrays)
     {
         if (arrays.Length == 0)
@@ -195,31 +179,31 @@ public class RKF45
         return result;
     }
     public double[] SubtractArrays(params double[][] arrays)
-{
-    if (arrays.Length == 0)
     {
-        throw new ArgumentException("At least one array must be provided.");
-    }
-
-    int length = arrays[0].Length;
-    for (int i = 1; i < arrays.Length; i++)
-    {
-        if (arrays[i].Length != length)
+        if (arrays.Length == 0)
         {
-            throw new ArgumentException("Array lengths must be equal.");
+            throw new ArgumentException("At least one array must be provided.");
         }
-    }
 
-    double[] result = new double[length];
-    for (int i = 0; i < length; i++)
-    {
-        for (int j = 0; j < arrays.Length; j++)
+        int length = arrays[0].Length;
+        for (int i = 1; i < arrays.Length; i++)
         {
-            result[i] -= arrays[j][i];
+            if (arrays[i].Length != length)
+            {
+                throw new ArgumentException("Array lengths must be equal.");
+            }
         }
+
+        double[] result = new double[length];
+        for (int i = 0; i < length; i++)
+        {
+            for (int j = 0; j < arrays.Length; j++)
+            {
+                result[i] -= arrays[j][i];
+            }
+        }
+        return result;
     }
-    return result;
-}
 }
 
 /// <summary>
