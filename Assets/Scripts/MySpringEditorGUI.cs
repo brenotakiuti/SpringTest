@@ -5,6 +5,7 @@ using UnityEngine;
 public class MySpringEditorGUI : Editor
 {
     private bool showInfoSection = true;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -32,6 +33,12 @@ public class MySpringEditorGUI : Editor
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.Vector3Field("Initial Position: ", yourComponent.GetInitialPosition());
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            EditorGUILayout.Vector3Field("Initial Joint Length: ", yourComponent.GetJointLength());
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            EditorGUILayout.Vector3Field("Distance Vector", yourComponent.GetDistanceVector());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.LabelField("Time: ");

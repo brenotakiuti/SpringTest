@@ -11,12 +11,15 @@ public class Spring1D : MonoBehaviour
     private float mass;
     [SerializeField] private float stiffness;
     [SerializeField] private float damping;
+    [SerializeField] private float addForceMagnitude = 100f;
     private float dampingSimulated = 0f;
     [Tooltip("This is a correction factor. The default value is -0.208f")]
     [SerializeField] private float dampingCorrection = -0.208f; //standard value: -0.208
     [SerializeField] private GameObject anchorObject;
     [SerializeField] private float initialDisplacement;
-    private float distance;
+    private float distanceY;
+    private Vector3 initialLength;
+    private Vector3 distanceVector;
     private float time = 0f;
     private double lastPosition;
     private double[] finalState;
@@ -41,34 +44,84 @@ public class Spring1D : MonoBehaviour
         newPosition.y += initialDisplacement;
         gameObject.transform.position = newPosition;
 
-        if(anchorObject!=null)
-        {
-            anchorPosition = anchorObject.transform.position;
-        }
-        
+        UpdateAnchorPosition();
+        initialLength = anchorPosition - initialPosition;
+
         lastPosition = initialPosition.y;
     }
 
     // FixedUpdate is called in a fixed time steps
     void FixedUpdate()
     {
+        UpdateAnchorPosition();
+
+
         //Use the conditions of the rigidbody as initial conditions for the solution of the ODE
         float deltaT = Time.fixedDeltaTime;
-        RKF45 solver = new RKF45();
+        //RKF45 solver = new RKF45();
         initialState = new double[2];
-        initialState[0] = transform.position.y - initialPosition.y;
-        initialState[1] = rb.velocity.y;
-        distance = Mathf.Abs(initialPosition.y - anchorPosition.y);
-        Result result = solver.Solve(springODE, 0, deltaT, initialState, 0.005, 1e-10);
-        finalState = result.y[result.y.Count-1];
-        time += (float)result.t[result.t.Count-1];
-        //displacementText.text = "y="+((float)finalState[0]).ToString();
-        //velocityText.text = "vy="+((float)finalState[1]).ToString();
-        //timeText.text = "dt=" + deltaT.ToString();
 
+        // In the Y direction
+        //initialState[0] = transform.position.y - initialPosition.y;
+        //initialState[1] = rb.velocity.y;
+        distanceY = Mathf.Abs(initialPosition.y - anchorPosition.y);
+        //Result result = solver.Solve(springODE, 0, deltaT, initialState, 0.005, 1e-10);
+        //finalState = result.y[result.y.Count-1];
+        //time += deltaT;
+        distanceVector = transform.position  - initialPosition + anchorPosition - initialLength;
         //Knowing the final state, throw this back to the Physics engine through a new force
-        Vector3 force = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
-        rb.AddForce(force);
+        //Vector3 forceY = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
+        //rb.AddForce(forceY);
+
+        // In the Y direction (new)
+        ApplyForce(distanceVector);
+        time += deltaT;
+    }
+
+    private void ApplyForce(Vector3 displacement)
+    {
+        float deltaT = Time.fixedDeltaTime;
+        RKF45 solver = new RKF45();
+        
+
+        if(displacement.x != 0)
+        {
+            double[] initialStateX = new double[2];
+            initialStateX[0] = displacement.x;
+            initialStateX[1] = rb.velocity.x;
+            Result result = solver.Solve(springODE, 0, deltaT, initialStateX, 0.005, 1e-10);
+            finalState = result.y[result.y.Count-1];
+
+            //Knowing the final state, throw this back to the Physics engine through a new force
+            Vector3 forceX = new Vector3((float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f, 0f);
+            rb.AddForce(forceX);
+        }
+
+        if(displacement.y != 0)
+        {
+            double[] initialStateY = new double[2];
+            initialStateY[0] = displacement.y;
+            initialStateY[1] = rb.velocity.y;
+            Result result = solver.Solve(springODE, 0, deltaT, initialStateY, 0.005, 1e-10);
+            finalState = result.y[result.y.Count-1];
+
+            //Knowing the final state, throw this back to the Physics engine through a new force
+            Vector3 forceY = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
+            rb.AddForce(forceY);
+        }
+
+        if(displacement.z != 0)
+        {
+            double[] initialStateZ = new double[2];
+            initialStateZ[0] = displacement.z;
+            initialStateZ[1] = rb.velocity.z;
+            Result result = solver.Solve(springODE, 0, deltaT, initialStateZ, 0.005, 1e-10);
+            finalState = result.y[result.y.Count-1];
+
+            //Knowing the final state, throw this back to the Physics engine through a new force
+            Vector3 forceZ = new Vector3(0f, 0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]));
+            rb.AddForce(forceZ);
+        }
     }
 
     private double[] springODE(double t, double[] x)
@@ -79,9 +132,18 @@ public class Spring1D : MonoBehaviour
         return y;
     }
 
-    public void applyForce()
+    public void applyForceY()
     {
-        rb.AddForce(0f, 1000, 0f);
+        rb.AddForce(0f, addForceMagnitude, 0f);
+    }
+    public void applyForceX()
+    {
+        rb.AddForce( addForceMagnitude, 0f, 0f);
+    }
+
+    public void applyForceZ()
+    {
+        rb.AddForce( 0f, 0f, addForceMagnitude);
     }
 
 #if UNITY_EDITOR
@@ -104,6 +166,15 @@ public class Spring1D : MonoBehaviour
         // If you have a second anchor point, you can draw it as well
         Gizmos.DrawCube(anchorPosition, sphereSize); // Replace secondAnchorPosition with the position of your second anchor point
     }
+    public void UpdateAnchorPosition()
+    {
+        if(anchorObject!=null)
+        {
+            anchorPosition = anchorObject.transform.position;
+        }else{
+            anchorPosition = Vector3.zero;
+        }
+    }
     public float GetMass()
     {
         return mass;
@@ -120,9 +191,17 @@ public class Spring1D : MonoBehaviour
     {
         return initialPosition;
     }
+    public Vector3 GetDistanceVector()
+    {
+        return distanceVector;
+    }
+    public Vector3 GetJointLength()
+    {
+        return initialLength;
+    }
     public float GetDisplacement()
     {
-        return distance;
+        return distanceY;
     }
     public float GetVelocity()
     {
