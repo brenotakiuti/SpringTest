@@ -17,14 +17,23 @@ public class Spring1D : MonoBehaviour
     [SerializeField] private float dampingCorrection = -0.208f; //standard value: -0.208
     [SerializeField] private GameObject anchorObject;
     [SerializeField] private float initialDisplacement;
+<<<<<<< HEAD
     private float distanceY;
     private Vector3 initialLength;
     private Vector3 distanceVector;
+=======
+    [SerializeField] private bool enableCollision = false;
+    private Vector3 newLength = new Vector3(0f, 0f, 0f);
+    private Vector3 initialLength;
+    private float distance;
+>>>>>>> origin/main
     private float time = 0f;
     private double lastPosition;
     private double[] finalState;
     private double[] initialState;
     private Rigidbody rb;
+    private Collider mainCollider;
+    private Collider anchorCollider;
     //[SerializeField] private TMP_Text timeText;
     //public TMP_Text displacementText;
     //public TMP_Text velocityText;
@@ -44,22 +53,77 @@ public class Spring1D : MonoBehaviour
         newPosition.y += initialDisplacement;
         gameObject.transform.position = newPosition;
 
+<<<<<<< HEAD
         UpdateAnchorPosition();
         initialLength = anchorPosition - initialPosition;
 
+=======
+        if(anchorObject!=null)
+        {
+            anchorPosition = anchorObject.transform.position;
+        }
+        else
+        {
+            anchorPosition = Vector3.zero;
+        }
+        initialLength = anchorPosition - initialPosition;
+>>>>>>> origin/main
         lastPosition = initialPosition.y;
+
+        mainCollider = GetComponent<Collider>();
+        anchorCollider = anchorObject.GetComponent<Collider>();
+
+    }
+
+    private void Update()
+    {
+        if (enableCollision)
+        {
+            // If collision is re enabled, set ignore to false
+            Physics.IgnoreCollision(mainCollider, anchorCollider, false);
+        }
+        else
+        {
+            Physics.IgnoreCollision(mainCollider, anchorCollider, true);
+        }
     }
 
     // FixedUpdate is called in a fixed time steps
     void FixedUpdate()
     {
+<<<<<<< HEAD
         UpdateAnchorPosition();
 
+=======
+        
+        if (anchorObject != null)
+        {
+            anchorPosition = anchorObject.transform.position;
+        }
+        else
+        {
+            anchorPosition = Vector3.zero;
+        }
+        newLength = anchorPosition - transform.position;
+>>>>>>> origin/main
 
         //Use the conditions of the rigidbody as initial conditions for the solution of the ODE
         float deltaT = Time.fixedDeltaTime;
         //RKF45 solver = new RKF45();
         initialState = new double[2];
+<<<<<<< HEAD
+=======
+        //initialState[0] = transform.position.y - initialPosition.y;
+        initialState[0] = initialLength.y - newLength.y;
+        initialState[1] = rb.velocity.y;
+        distance = Mathf.Abs(initialPosition.y - anchorPosition.y);
+        Result result = solver.Solve(springODE, 0, deltaT, initialState, 0.005, 1e-10);
+        finalState = result.y[result.y.Count-1];
+        time += (float)result.t[result.t.Count-1];
+        //displacementText.text = "y="+((float)finalState[0]).ToString();
+        //velocityText.text = "vy="+((float)finalState[1]).ToString();
+        //timeText.text = "dt=" + deltaT.ToString();
+>>>>>>> origin/main
 
         // In the Y direction
         //initialState[0] = transform.position.y - initialPosition.y;
@@ -70,6 +134,7 @@ public class Spring1D : MonoBehaviour
         //time += deltaT;
         distanceVector = transform.position  - initialPosition + anchorPosition - initialLength;
         //Knowing the final state, throw this back to the Physics engine through a new force
+<<<<<<< HEAD
         //Vector3 forceY = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
         //rb.AddForce(forceY);
 
@@ -122,6 +187,11 @@ public class Spring1D : MonoBehaviour
             Vector3 forceZ = new Vector3(0f, 0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]));
             rb.AddForce(forceZ);
         }
+=======
+        Vector3 force = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
+        rb.AddForce(force);
+        anchorObject.GetComponent<Rigidbody>().AddForce(-force);
+>>>>>>> origin/main
     }
 
     private double[] springODE(double t, double[] x)
@@ -191,6 +261,7 @@ public class Spring1D : MonoBehaviour
     {
         return initialPosition;
     }
+<<<<<<< HEAD
     public Vector3 GetDistanceVector()
     {
         return distanceVector;
@@ -198,6 +269,15 @@ public class Spring1D : MonoBehaviour
     public Vector3 GetJointLength()
     {
         return initialLength;
+=======
+    public Vector3 GetInitialLength()
+    {
+        return initialLength;
+    }
+    public Vector3 GetNewLength()
+    {
+        return newLength;
+>>>>>>> origin/main
     }
     public float GetDisplacement()
     {

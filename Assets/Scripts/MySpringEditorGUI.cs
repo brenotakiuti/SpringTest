@@ -35,37 +35,23 @@ public class MySpringEditorGUI : Editor
             EditorGUILayout.Vector3Field("Initial Position: ", yourComponent.GetInitialPosition());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
+<<<<<<< HEAD
             EditorGUILayout.Vector3Field("Initial Joint Length: ", yourComponent.GetJointLength());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.Vector3Field("Distance Vector", yourComponent.GetDistanceVector());
+=======
+            EditorGUILayout.Vector3Field("Initial Length: ", yourComponent.GetInitialLength());
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            EditorGUILayout.Vector3Field("New Length: ", yourComponent.GetNewLength());
+>>>>>>> origin/main
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.LabelField("Time: ");
             EditorGUILayout.LabelField(yourComponent.GetTime().ToString());
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            EditorGUILayout.LabelField("Initial State");
-            // Iterate through the array elements
-            if (yourComponent.GetInitialState() != null)
-            {
-                for (int i = 0; i < yourComponent.GetInitialState().Length; i++)
-                {
-                    EditorGUILayout.LabelField("[" + i.ToString() + "]", yourComponent.GetInitialState()[i].ToString());
-                }
-            }
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            EditorGUILayout.LabelField("Final State");
-            // Iterate through the array elements
-            if (yourComponent.GetInitialState() != null)
-            {
-                for (int i = 0; i < yourComponent.GetFinalState().Length; i++)
-                {
-                    EditorGUILayout.LabelField("[" + i.ToString() + "]", yourComponent.GetFinalState()[i].ToString());
-                }
-            }
-            EditorGUILayout.EndVertical();
+            
 
             EditorGUI.indentLevel--;
         }
