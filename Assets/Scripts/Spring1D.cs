@@ -16,6 +16,7 @@ public class Spring1D : MonoBehaviour
     [SerializeField] private float dampingCorrection = -0.208f; //standard value: -0.208
     [SerializeField] private GameObject anchorObject;
     [SerializeField] private float initialDisplacement;
+    [SerializeField] private bool enableCollision = false;
     private Vector3 newLength = new Vector3(0f, 0f, 0f);
     private Vector3 initialLength;
     private float distance;
@@ -24,6 +25,8 @@ public class Spring1D : MonoBehaviour
     private double[] finalState;
     private double[] initialState;
     private Rigidbody rb;
+    private Collider mainCollider;
+    private Collider anchorCollider;
     //[SerializeField] private TMP_Text timeText;
     //public TMP_Text displacementText;
     //public TMP_Text velocityText;
@@ -53,6 +56,23 @@ public class Spring1D : MonoBehaviour
         }
         initialLength = anchorPosition - initialPosition;
         lastPosition = initialPosition.y;
+
+        mainCollider = GetComponent<Collider>();
+        anchorCollider = anchorObject.GetComponent<Collider>();
+
+    }
+
+    private void Update()
+    {
+        if (enableCollision)
+        {
+            // If collision is re enabled, set ignore to false
+            Physics.IgnoreCollision(mainCollider, anchorCollider, false);
+        }
+        else
+        {
+            Physics.IgnoreCollision(mainCollider, anchorCollider, true);
+        }
     }
 
     // FixedUpdate is called in a fixed time steps
