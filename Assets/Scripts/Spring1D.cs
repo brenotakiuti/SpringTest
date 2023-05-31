@@ -16,6 +16,8 @@ public class Spring1D : MonoBehaviour
     [SerializeField] private float dampingCorrection = -0.208f; //standard value: -0.208
     [SerializeField] private GameObject anchorObject;
     [SerializeField] private float initialDisplacement;
+    private Vector3 newLength = new Vector3(0f, 0f, 0f);
+    private Vector3 initialLength;
     private float distance;
     private float time = 0f;
     private double lastPosition;
@@ -45,18 +47,34 @@ public class Spring1D : MonoBehaviour
         {
             anchorPosition = anchorObject.transform.position;
         }
-        
+        else
+        {
+            anchorPosition = Vector3.zero;
+        }
+        initialLength = anchorPosition - initialPosition;
         lastPosition = initialPosition.y;
     }
 
     // FixedUpdate is called in a fixed time steps
     void FixedUpdate()
     {
+        
+        if (anchorObject != null)
+        {
+            anchorPosition = anchorObject.transform.position;
+        }
+        else
+        {
+            anchorPosition = Vector3.zero;
+        }
+        newLength = anchorPosition - transform.position;
+
         //Use the conditions of the rigidbody as initial conditions for the solution of the ODE
         float deltaT = Time.fixedDeltaTime;
         RKF45 solver = new RKF45();
         initialState = new double[2];
-        initialState[0] = transform.position.y - initialPosition.y;
+        //initialState[0] = transform.position.y - initialPosition.y;
+        initialState[0] = initialLength.y - newLength.y;
         initialState[1] = rb.velocity.y;
         distance = Mathf.Abs(initialPosition.y - anchorPosition.y);
         Result result = solver.Solve(springODE, 0, deltaT, initialState, 0.005, 1e-10);
@@ -69,6 +87,7 @@ public class Spring1D : MonoBehaviour
         //Knowing the final state, throw this back to the Physics engine through a new force
         Vector3 force = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
         rb.AddForce(force);
+        anchorObject.GetComponent<Rigidbody>().AddForce(-force);
     }
 
     private double[] springODE(double t, double[] x)
@@ -119,6 +138,14 @@ public class Spring1D : MonoBehaviour
     public Vector3 GetInitialPosition()
     {
         return initialPosition;
+    }
+    public Vector3 GetInitialLength()
+    {
+        return initialLength;
+    }
+    public Vector3 GetNewLength()
+    {
+        return newLength;
     }
     public float GetDisplacement()
     {
