@@ -6,18 +6,22 @@ using UnityEngine;
 public class DrawSpringMesh : MonoBehaviour
 {
     [SerializeField] private GameObject anchorObject;
+    [SerializeField] private Vector3 anchorOffset;
     [SerializeField] private GameObject baseObject;
+    [SerializeField] private Vector3 baseOffset;
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private int numberOfHelixes;
     [SerializeField] private float springRadius;
     [SerializeField] private GameObject vertexMarker;
+    [SerializeField] private float tolerance;
 
     private Vector3 anchorPosition;
     private Vector3 initialPosition;
     private Vector2[] spinePoints;
     private Vector2[] ribbPoints;
     private GameObject[] markers;
+    private Vector2 previousDelta;
 
     // Start is called before the first frame update
     void Start()
@@ -28,19 +32,24 @@ public class DrawSpringMesh : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        initialPosition = baseObject.transform.position;
-        anchorPosition = anchorObject.transform.position;
-        spinePoints = CalculateSpinePoints();
-        //ArrayDebugger("spine points", spinePoints);
-        ribbPoints = CalculateRibbPoints(spinePoints);
-        //ArrayDebugger("ribb points", ribbPoints);
-        markers = InstantiateMarkers(markers,ribbPoints);
+        initialPosition = baseObject.transform.position+baseOffset;
+        anchorPosition = anchorObject.transform.position+anchorOffset;
+        Vector2 delta = (initialPosition - anchorPosition) / (numberOfHelixes - 1);
+        if(Mathf.Abs(delta.magnitude-previousDelta.magnitude)>tolerance)
+        {
+            spinePoints = CalculateSpinePoints(delta);
+            //ArrayDebugger("spine points", spinePoints);
+            ribbPoints = CalculateRibbPoints(spinePoints);
+            //ArrayDebugger("ribb points", ribbPoints);
+            markers = InstantiateMarkers(markers, ribbPoints);
+            previousDelta = delta;
+        }        
     }
 
-    private Vector2[] CalculateSpinePoints()
+    private Vector2[] CalculateSpinePoints(Vector2 delta)
     {
         Vector2[] spineList = new Vector2[numberOfHelixes];
-        Vector2 delta = (initialPosition - anchorPosition)/(numberOfHelixes-1);
+        //Vector2 delta = (initialPosition - anchorPosition)/(numberOfHelixes-1);
         spineList[0] = anchorPosition;
         for(int i=1;i<numberOfHelixes;i++)
         {
@@ -91,7 +100,7 @@ public class DrawSpringMesh : MonoBehaviour
                     ribb.y = midY;
                 }
             }
-            Debug.Log("Ribb = " + ribb.x + ", " + ribb.y);
+            //Debug.Log("Ribb = " + ribb.x + ", " + ribb.y);
             ribbList[i] = ribb;
         }
         Vector2[] newArrayOfRibbs = new Vector2[n + 1];
