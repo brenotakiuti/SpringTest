@@ -35,17 +35,13 @@ public class MySpringEditorGUI : Editor
             EditorGUILayout.Vector3Field("Initial Position: ", yourComponent.GetInitialPosition());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
-<<<<<<< HEAD
-            EditorGUILayout.Vector3Field("Initial Joint Length: ", yourComponent.GetJointLength());
+            EditorGUILayout.Vector3Field("Initial Joint Length: ", yourComponent.GetInitialLength());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.Vector3Field("Distance Vector", yourComponent.GetDistanceVector());
-=======
-            EditorGUILayout.Vector3Field("Initial Length: ", yourComponent.GetInitialLength());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            EditorGUILayout.Vector3Field("New Length: ", yourComponent.GetNewLength());
->>>>>>> origin/main
+            EditorGUILayout.Vector3Field("New Joint Length: ", yourComponent.GetNewLength());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.LabelField("Time: ");
