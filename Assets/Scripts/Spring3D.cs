@@ -1,38 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using UnityEditor;
-using UnityEngine.UI;
-using TMPro;
 
-public class Spring1D : MonoBehaviour
+[RequireComponent(typeof(DrawSpringMesh)), RequireComponent(typeof(Rigidbody))]
+// This spring works in 3D but it is linear in all direction. Not a precise simulation of 3D, but precise 1D simulation.
+public class Spring3D : MonoBehaviour
 {
-    private float mass;
-    [SerializeField] private float stiffness;
-    [SerializeField] private float damping;
+    //Set up parameters
+    [Tooltip("Stiffness k of the spring")]
+    [SerializeField] private float stiffness = 1f;
+    [Tooltip("Damping c of the spring/damper")]
+    [SerializeField] private float damping = 0f;
+    [Tooltip("The magnitude of the force applied by ApplyForce()")]
     [SerializeField] private float addForceMagnitude = 100f;
-    private float dampingSimulated = 0f;
-    [Tooltip("This is a correction factor. The default value is -0.208f")]
+    [Tooltip("This is a correction factor, use this to eliminate Unity's internal damping. The default value is -0.208f")]
     [SerializeField] private float dampingCorrection = -0.208f; //standard value: -0.208
+    [Tooltip("The object to which this is anchored")]
     [SerializeField] private GameObject anchorObject;
-    [SerializeField] private float initialDisplacement;
+    [Tooltip("Set up if you want to start simulations with a initial displacement")]
+    [SerializeField] private float initialDisplacement = 0f;
+    [Tooltip("If true, the object will collide with it's anchor")]
     [SerializeField] private bool enableCollision = false;
-    private float distanceY;
-    private Vector3 initialLength;
-    private Vector3 distanceVector;    
+
+    // Internal parameters
+    private float mass;
+    private float dampingSimulated = 0f;
+    private Vector3 initialLength;   
     private Vector3 newLength = new Vector3(0f, 0f, 0f);
     private Vector3 distance;
     private float time = 0f;
-    private double lastPosition;
     private double[] finalState;
     private double[] initialState;
     private Rigidbody rb;
     private Collider mainCollider;
     private Collider anchorCollider;
-    //[SerializeField] private TMP_Text timeText;
-    //public TMP_Text displacementText;
-    //public TMP_Text velocityText;
+    private DrawSpringMesh drawSpringMesh;
 
     private Vector3 initialPosition;
     private Vector3 anchorPosition = new Vector3(0f, 0f, 0f);
@@ -40,9 +40,14 @@ public class Spring1D : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        drawSpringMesh = GetComponent<DrawSpringMesh>();
         rb = gameObject.GetComponent<Rigidbody>();
         mass = rb.mass;
         initialPosition = transform.position;
+
+        drawSpringMesh.AnchorObject = anchorObject;
+        drawSpringMesh.BaseObject = gameObject;
+
         dampingSimulated = damping+dampingCorrection;
         // The initial position is taken directly from the editor (check #IF UNITY_EDITOR)
         Vector3 newPosition = initialPosition;
@@ -51,8 +56,6 @@ public class Spring1D : MonoBehaviour
 
         UpdateAnchorPosition();
         initialLength = anchorPosition - initialPosition;
-
-        //lastPosition = initialPosition.y;
 
         mainCollider = GetComponent<Collider>();
         anchorCollider = anchorObject.GetComponent<Collider>();
@@ -81,8 +84,6 @@ public class Spring1D : MonoBehaviour
         //Use the conditions of the rigidbody as initial conditions for the solution of the ODE
         float deltaT = Time.fixedDeltaTime;
         distance = initialLength - newLength;
-
-        //distanceY = Mathf.Abs(initialPosition.y - anchorPosition.y);
 
         // In the Y direction (new)
         ApplyForce(distance);
@@ -216,10 +217,10 @@ public class Spring1D : MonoBehaviour
     {
         return newLength;
     }
-    public float GetDisplacement()
-    {
-        return distanceY;
-    }
+    //public float GetDisplacement()
+    //{
+    //    return distanceY;
+    //}
     public float GetVelocity()
     {
         return (float)finalState[1];

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(Spring1D))]
+[CustomEditor(typeof(Spring3D))]
 public class MySpringEditorGUI : Editor
 {
     private bool showInfoSection = true;
@@ -11,7 +11,7 @@ public class MySpringEditorGUI : Editor
         base.OnInspectorGUI();
 
         // Cast the target to your component type
-        Spring1D yourComponent = (Spring1D)target;
+        Spring3D yourComponent = (Spring3D)target;
 
         // Info Section
         showInfoSection = EditorGUILayout.BeginFoldoutHeaderGroup(showInfoSection, "Info");
