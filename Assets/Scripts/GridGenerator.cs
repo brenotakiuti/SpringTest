@@ -57,10 +57,16 @@ public class GridGenerator : MonoBehaviour
         // }
 
         // Generate new grid lines (new)
-        for (int x = 0; x <= gridSize.x/2; x++)
+        Vector3 lineStart = new Vector3( 0, -gridSize.y/2 * gridSpacing, 0f);
+        Vector3 lineEnd = new Vector3( 0, gridSize.y/2 * gridSpacing, 0f);
+        DrawLine(lineStart, lineEnd,lineWidth*multiplier*2);
+        lineStart = new Vector3(-gridSize.x/2 * gridSpacing, 0, 0f);
+        lineEnd = new Vector3(gridSize.x/2 * gridSpacing, 0, 0f);
+        DrawLine(lineStart, lineEnd,lineWidth*multiplier*2);
+        for (int x = 1; x <= gridSize.x/2; x++)
         {
-            Vector3 lineStart = new Vector3(x * gridSpacing, -gridSize.y/2 * gridSpacing, 0f);
-            Vector3 lineEnd = new Vector3(x * gridSpacing, gridSize.y/2 * gridSpacing, 0f);
+            lineStart = new Vector3(x * gridSpacing, -gridSize.y/2 * gridSpacing, 0f);
+            lineEnd = new Vector3(x * gridSpacing, gridSize.y/2 * gridSpacing, 0f);
             if(x%thickerLineAt == 0)
             {
                 DrawLine(lineStart, lineEnd,lineWidth*multiplier);
@@ -68,10 +74,10 @@ public class GridGenerator : MonoBehaviour
                 DrawLine(lineStart, lineEnd,lineWidth);
             }
         }
-        for (int x = 0; x >= -gridSize.x/2; x--)
+        for (int x = 1; x >= -gridSize.x/2; x--)
         {
-            Vector3 lineStart = new Vector3(x * gridSpacing, -gridSize.y/2 * gridSpacing, 0f);
-            Vector3 lineEnd = new Vector3(x * gridSpacing, gridSize.y/2 * gridSpacing, 0f);
+            lineStart = new Vector3(x * gridSpacing, -gridSize.y/2 * gridSpacing, 0f);
+            lineEnd = new Vector3(x * gridSpacing, gridSize.y/2 * gridSpacing, 0f);
             if(x%thickerLineAt == 0)
             {
                 DrawLine(lineStart, lineEnd,lineWidth*multiplier);
@@ -80,10 +86,10 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
-        for (int y = 0; y <= gridSize.y/2; y++)
+        for (int y = 1; y <= gridSize.y/2; y++)
         {
-            Vector3 lineStart = new Vector3(-gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
-            Vector3 lineEnd = new Vector3(gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
+            lineStart = new Vector3(-gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
+            lineEnd = new Vector3(gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
             if(y%thickerLineAt == 0)
             {
                 DrawLine(lineStart, lineEnd,lineWidth*multiplier);
@@ -92,10 +98,10 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
-        for (int y = 0; y >= -gridSize.y/2; y--)
+        for (int y = 1; y >= -gridSize.y/2; y--)
         {
-            Vector3 lineStart = new Vector3(-gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
-            Vector3 lineEnd = new Vector3(gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
+            lineStart = new Vector3(-gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
+            lineEnd = new Vector3(gridSize.x/2 * gridSpacing, y * gridSpacing, 0f);
             if(y%thickerLineAt == 0)
             {
                 DrawLine(lineStart, lineEnd,lineWidth*multiplier);
