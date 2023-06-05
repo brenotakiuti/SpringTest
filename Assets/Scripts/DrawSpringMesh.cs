@@ -1,17 +1,21 @@
 using System;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class DrawSpringMesh : MonoBehaviour
 {
-    
+
     [SerializeField] private Vector3 anchorOffset;
     [SerializeField] private Vector3 baseOffset;
     [SerializeField] private Material material;
-    [SerializeField] private int numberOfHelixes = 10;
+    [Tooltip("Number of periods (helixes). You will always get +1 because you have half in connected do anchor and half to the base (this body)")]
+    [SerializeField] private int numberOfHelixes = 9;
     [SerializeField] private float springRadius = 0.5f;
     [SerializeField] private float springWidth = 0.1f;
     [SerializeField] private GameObject vertexMarker;
-    [SerializeField] private double tolerance = 0.01;
+    [SerializeField] private double tolerance = 1e-6;
 
     private GameObject anchorObject;
     private GameObject baseObject;
@@ -42,28 +46,34 @@ public class DrawSpringMesh : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        initialPosition = baseObject.transform.position+baseOffset;
-        anchorPosition = anchorObject.transform.position+anchorOffset;
+        initialPosition = baseObject.transform.position + baseOffset;
+        anchorPosition = anchorObject.transform.position + anchorOffset;
         Vector2 delta = (initialPosition - anchorPosition) / (numberOfHelixes - 1);
-        if(Mathf.Abs(delta.magnitude-previousDelta.magnitude)>tolerance)
+        if (Mathf.Abs(delta.magnitude - previousDelta.magnitude) > tolerance)
         {
-            // Calculate the spine points of the spring. The spine is the center line starting from the anchored object and ending at the object itself.
-            spinePoints = CalculateSpinePoints(delta);
-            // Calculate the ribb points. The ribb points are points positioned at a distance "springRadius" from the spine line.
-            ribbPoints = CalculateRibbPoints(spinePoints);
-            // Calculate the vertices. If we want to draw a mesh, we need at  least 4 points (to draw a rectangle) so we transform the spinePoints into two pairs of points with a distance of springWidth from each other.
-            vertexPoints = CalculateVerticesFromRibbs(ribbPoints);
-            
-            // Draw markers at ribbpoints. This is used mostly for debugging purposes.
-            //markers = InstantiateMarkers(markers, ribbPoints);
-
-            // Generate the mesh with the calculated vertex points
-            mesh = drawMesh.GenerateMesh(vertexPoints, numberOfHelixes+1);
-
-            // Update the mesh
-            drawMesh.UpdateMesh(mesh);
+            UpdateSpringMesh(delta);
             previousDelta = delta;
-        }        
+        }
+    }
+
+
+    private void UpdateSpringMesh(Vector2 delta)
+    {
+        // Calculate the spine points of the spring. The spine is the center line starting from the anchored object and ending at the object itself.
+        spinePoints = CalculateSpinePoints(delta);
+        // Calculate the ribb points. The ribb points are points positioned at a distance "springRadius" from the spine line.
+        ribbPoints = CalculateRibbPoints(spinePoints);
+        // Calculate the vertices. If we want to draw a mesh, we need at  least 4 points (to draw a rectangle) so we transform the spinePoints into two pairs of points with a distance of springWidth from each other.
+        vertexPoints = CalculateVerticesFromRibbs(ribbPoints);
+
+        // Draw markers at ribbpoints. This is used mostly for debugging purposes.
+        //markers = InstantiateMarkers(markers, ribbPoints);
+
+        // Generate the mesh with the calculated vertex points
+        mesh = drawMesh.GenerateMesh(vertexPoints, numberOfHelixes + 1);
+
+        // Update the mesh
+        drawMesh.UpdateMesh(mesh);
     }
 
     /// <summary>
@@ -75,7 +85,7 @@ public class DrawSpringMesh : MonoBehaviour
         Vector3[] spineList = new Vector3[numberOfHelixes];
         //Vector2 delta = (initialPosition - anchorPosition)/(numberOfHelixes-1);
         spineList[0] = anchorPosition;
-        for(int i=1;i<numberOfHelixes;i++)
+        for (int i = 1; i < numberOfHelixes; i++)
         {
             spineList[i] = spineList[i - 1] + delta;
         }
@@ -89,11 +99,11 @@ public class DrawSpringMesh : MonoBehaviour
     private Vector3[] CalculateRibbPoints(Vector3[] spineArray)
     {
         int n = spineArray.Length;
-        Vector3[] ribbList = new Vector3[n-1];
+        Vector3[] ribbList = new Vector3[n - 1];
         Vector3 ribb = Vector3.zero;
         float midX = 0f;
         float midY = 0f;
-        for (int i = 0; i < n-1; i ++)
+        for (int i = 0; i < n - 1; i++)
         {
             // Calculate the midpoint between the first spine point to the next spine point
             midX = (spineArray[i + 1].x + spineArray[i].x) / 2;
@@ -104,7 +114,7 @@ public class DrawSpringMesh : MonoBehaviour
             float perpSlope = CalculateNormalSlope(slope);
 
             // If the slope of any of the two lines above are different than zero
-            if(perpSlope!=0)
+            if (perpSlope != 0)
             {
                 // Position the ribb to the relative right of the spine line
                 if (i % 2 == 0)
@@ -118,8 +128,9 @@ public class DrawSpringMesh : MonoBehaviour
                     ribb.x = midX - (springRadius / Mathf.Sqrt(1 + Mathf.Pow(perpSlope, 2)));
                     ribb.y = midY - (springRadius * perpSlope / Mathf.Sqrt(1 + Mathf.Pow(perpSlope, 2)));
                 }
-            // Else if there are any slopes that are zero, the spine is a completely vertical line, meaning that the ribbs can be placed simply to the right and left of the spine line
-            }else
+                // Else if there are any slopes that are zero, the spine is a completely vertical line, meaning that the ribbs can be placed simply to the right and left of the spine line
+            }
+            else
             {
                 // Position the ribb to the global right of the spine line
                 if (i % 2 == 0)
@@ -140,7 +151,7 @@ public class DrawSpringMesh : MonoBehaviour
         Vector3[] newArrayOfRibbs = new Vector3[n + 1];
         newArrayOfRibbs[0] = anchorPosition; // Add the anchor position as zero
         Array.Copy(ribbList, 0, newArrayOfRibbs, 1, ribbList.Length); // Copy original array starting from index 0 to newArray starting from index 1
-        newArrayOfRibbs[newArrayOfRibbs.Length-1] = initialPosition; // Add the initial position as the last index
+        newArrayOfRibbs[newArrayOfRibbs.Length - 1] = initialPosition; // Add the initial position as the last index
         return newArrayOfRibbs;
     }
 
@@ -150,15 +161,15 @@ public class DrawSpringMesh : MonoBehaviour
     /// <param name="ribbs">the array of ribb points.</param>
     private Vector3[] CalculateVerticesFromRibbs(Vector3[] ribbs)
     {
-        int n = ribbs.Length;   
-        Vector3[] vertices = new Vector3[2*n];
+        int n = ribbs.Length;
+        Vector3[] vertices = new Vector3[2 * n];
         int counter = 0;
-        for(int i=0; i<n*2; i+=2)
+        for (int i = 0; i < n * 2; i += 2)
         {
             vertices[i] = ribbs[counter];
             vertices[i].y = vertices[i].y - springWidth / 2;
             vertices[i + 1] = ribbs[counter];
-            vertices[i + 1].y = vertices[i+1].y + springWidth/2;
+            vertices[i + 1].y = vertices[i + 1].y + springWidth / 2;
             counter++;
         }
         return vertices;
@@ -173,10 +184,11 @@ public class DrawSpringMesh : MonoBehaviour
     /// <param name="y2">final y coordinate.</param>
     private float CalculateSlope(float x1, float x2, float y1, float y2)
     {
-        if(x2==x1)
+        if (x2 == x1)
         {
             return 0;
-        }else
+        }
+        else
         {
             return (y2 - y1) / (x2 - x1);
         }
@@ -205,7 +217,7 @@ public class DrawSpringMesh : MonoBehaviour
     private void ArrayDebugger(string message, Vector3[] array)
     {
         int n = array.Length;
-        for(int i=0; i<n; i++)
+        for (int i = 0; i < n; i++)
         {
             Debug.Log(message + "[" + i + "]=" + array[i]);
         }
@@ -223,7 +235,7 @@ public class DrawSpringMesh : MonoBehaviour
             DestroyInstantiated(toBeDestroyed);
         }
         int n = positions.Length;
-        GameObject[] instantiated = new GameObject[n]; 
+        GameObject[] instantiated = new GameObject[n];
         for (int i = 0; i < n; i++)
         {
             //Vector3 position = new Vector3(positions[i].x, positions[i].y, 0f);
@@ -238,7 +250,7 @@ public class DrawSpringMesh : MonoBehaviour
     /// <param name="instantiated">Array containing game objects to be destroyed.</param>
     private void DestroyInstantiated(GameObject[] instantiated)
     {
-        foreach(GameObject obj in instantiated)
+        foreach (GameObject obj in instantiated)
         {
             Destroy(obj);
         }

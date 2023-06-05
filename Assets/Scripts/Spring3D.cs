@@ -104,7 +104,14 @@ public class Spring3D : MonoBehaviour
             finalState = result.y[result.y.Count-1];
 
             //Knowing the final state, throw this back to the Physics engine through a new force
-            Vector3 forceX = new Vector3((float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f, 0f);
+            float springDamperForce = (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]);
+            
+            if (float.IsNaN(springDamperForce))
+            {
+                springDamperForce = 0;
+            }
+            Vector3 forceX = new Vector3(springDamperForce, 0f, 0f);
+
             rb.AddForce(forceX);
             anchorObject.GetComponent<Rigidbody>().AddForce(-forceX);
         }
@@ -118,7 +125,15 @@ public class Spring3D : MonoBehaviour
             finalState = result.y[result.y.Count-1];
 
             //Knowing the final state, throw this back to the Physics engine through a new force
-            Vector3 forceY = new Vector3(0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]), 0f);
+            float springDamperForce = (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]);
+
+            if (float.IsNaN(springDamperForce))
+            {
+                springDamperForce = 0;
+            }
+
+
+            Vector3 forceY = new Vector3(0f, springDamperForce, 0f);
             rb.AddForce(forceY);
             anchorObject.GetComponent<Rigidbody>().AddForce(-forceY);
         }
@@ -132,7 +147,14 @@ public class Spring3D : MonoBehaviour
             finalState = result.y[result.y.Count-1];
 
             //Knowing the final state, throw this back to the Physics engine through a new force
-            Vector3 forceZ = new Vector3(0f, 0f, (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]));
+            float springDamperForce = (float)(-stiffness * finalState[0] - dampingSimulated * finalState[1]);
+
+            if (float.IsNaN(springDamperForce))
+            {
+                springDamperForce = 0;
+            }
+
+            Vector3 forceZ = new Vector3(0f, 0f, springDamperForce);
             rb.AddForce(forceZ);
             anchorObject.GetComponent<Rigidbody>().AddForce(-forceZ);
         }
