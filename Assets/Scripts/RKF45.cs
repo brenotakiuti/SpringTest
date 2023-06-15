@@ -35,9 +35,12 @@ public class RKF45
         //odeFunction(time,state), return final state
 
         double[] state = (double[])initialState.Clone();    //Do NOT EVER assign an array with another array just to "copy it". In C# double[] state = initialState assigns the reference of initialState to state, making them essentially the same thing (literally the same position in the memory)
+        int n = state.Length;
         List<double[]> finalState = new List<double[]>();
-        double[] yState = { 0, 0 };
-        double[] zState = { 0, 0 };
+        //double[] yState = { 0, 0 };
+        double[] yState = new double[n];
+        //double[] zState = { 0, 0 };
+        double[] zState = new double[n];
         double time = startTime;
         double step = stepSize;
         //double[] k = { 0, 0, 0, 0, 0, 0 };
@@ -78,7 +81,7 @@ public class RKF45
                 //k2
                 newTime = time + coef_A[1] * step;
                 //newState[0] = newState[0] + coef_B[1, 0] * k[0];
-                newState = AddArrays(state, ScalarMulti(coef_B[1, 0], k0));
+                newState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_B[1, 0], k0));
                 f = odeFunction(newTime, newState);
                 //k1 = step * f[0];
                 k1 = f.Select(r => r * step).ToArray();
@@ -86,7 +89,7 @@ public class RKF45
                 //k3
                 newTime = time + coef_A[2] * step;
                 //newState[0] = state[0] + coef_B[2, 0] * k[0] + coef_B[2, 1] * k[1];
-                newState = AddArrays(state, ScalarMulti(coef_B[2, 0], k0), ScalarMulti(coef_B[2, 1], k1));
+                newState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_B[2, 0], k0), Matrix.MultiScalarArray(coef_B[2, 1], k1));
                 f = odeFunction(newTime, newState);
                 //k[2] = step * f[0];
                 k2 = f.Select(r => r * step).ToArray();
@@ -94,7 +97,7 @@ public class RKF45
                 //k4
                 newTime = time + coef_A[3] * step;
                 //newState[0] = state[0] + coef_B[3, 0] * k[0] + coef_B[3, 1] * k[1] + coef_B[3, 2] * k[2];
-                newState = AddArrays(state, ScalarMulti(coef_B[3, 0], k0), ScalarMulti(coef_B[3, 1], k1), ScalarMulti(coef_B[3, 2], k2));
+                newState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_B[3, 0], k0), Matrix.MultiScalarArray(coef_B[3, 1], k1), Matrix.MultiScalarArray(coef_B[3, 2], k2));
                 f = odeFunction(newTime, newState);
                 //k[3] = step * f[0];
                 k3 = f.Select(r => r * step).ToArray();
@@ -102,7 +105,7 @@ public class RKF45
                 //k5
                 newTime = time + coef_A[4] * step;
                 //newState[0] = state[0] + coef_B[4, 0] * k[0] + coef_B[4, 1] * k[1] + coef_B[4, 2] * k[2] + coef_B[4, 3] * k[3];
-                newState = AddArrays(state, ScalarMulti(coef_B[4, 0], k0), ScalarMulti(coef_B[4, 1], k1), ScalarMulti(coef_B[4, 2], k2), ScalarMulti(coef_B[4, 3], k3));
+                newState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_B[4, 0], k0), Matrix.MultiScalarArray(coef_B[4, 1], k1), Matrix.MultiScalarArray(coef_B[4, 2], k2), Matrix.MultiScalarArray(coef_B[4, 3], k3));
                 f = odeFunction(newTime, newState);
                 //k[4] = step * f[0];
                 k4 = f.Select(r => r * step).ToArray();
@@ -110,17 +113,17 @@ public class RKF45
                 //k6
                 newTime = time + coef_A[5] * step;
                 //newState[0] = state[0] + coef_B[5, 0] * k[0] + coef_B[5, 1] * k[1] + coef_B[5, 2] * k[2] + coef_B[5, 3] * k[3] + coef_B[5, 4] * k[4];
-                newState = AddArrays(state, ScalarMulti(coef_B[5, 0], k0), ScalarMulti(coef_B[5, 1], k1), ScalarMulti(coef_B[5, 2], k2), ScalarMulti(coef_B[5, 3], k3), ScalarMulti(coef_B[5, 4], k4));
+                newState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_B[5, 0], k0), Matrix.MultiScalarArray(coef_B[5, 1], k1), Matrix.MultiScalarArray(coef_B[5, 2], k2), Matrix.MultiScalarArray(coef_B[5, 3], k3), Matrix.MultiScalarArray(coef_B[5, 4], k4));
                 f = odeFunction(newTime, newState);
                 //k[5] = step * f[0];
                 k5 = f.Select(r => r * step).ToArray();
 
                 // Calculation of y_k+1 and z_k+1 REF[1]Eq(29-30)Page(508) 
-                yState = AddArrays(state, ScalarMulti(coef_C[0], k0), ScalarMulti(coef_C[1], k1), ScalarMulti(coef_C[2], k2), ScalarMulti(coef_C[3], k3), ScalarMulti(coef_C[4], k4), ScalarMulti(coef_C[5], k5));
-                zState = AddArrays(state, ScalarMulti(coef_CH[0], k0), ScalarMulti(coef_CH[1], k1), ScalarMulti(coef_CH[2], k2), ScalarMulti(coef_CH[3], k3), ScalarMulti(coef_CH[4], k4), ScalarMulti(coef_CH[5], k5));
+                yState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_C[0], k0), Matrix.MultiScalarArray(coef_C[1], k1), Matrix.MultiScalarArray(coef_C[2], k2), Matrix.MultiScalarArray(coef_C[3], k3), Matrix.MultiScalarArray(coef_C[4], k4), Matrix.MultiScalarArray(coef_C[5], k5));
+                zState = Matrix.AddArrays(state, Matrix.MultiScalarArray(coef_CH[0], k0), Matrix.MultiScalarArray(coef_CH[1], k1), Matrix.MultiScalarArray(coef_CH[2], k2), Matrix.MultiScalarArray(coef_CH[3], k3), Matrix.MultiScalarArray(coef_CH[4], k4), Matrix.MultiScalarArray(coef_CH[5], k5));
 
                 // The error is the difference between the two aproximations
-                double[] error = SubtractArrays(zState, yState);
+                double[] error = Matrix.SubtractArrays(zState, yState);
 
                 bool errorBool = error.Any(element => element > tolerance);
 
@@ -147,63 +150,6 @@ public class RKF45
         return result;
     }
 
-    public static double[] ScalarMulti(double scalar, double[] array)
-    {
-        return array.Select(r => r * scalar).ToArray();
-    }
-
-    public double[] AddArrays(params double[][] arrays)
-    {
-        if (arrays.Length == 0)
-        {
-            throw new ArgumentException("At least one array must be provided.");
-        }
-
-        int length = arrays[0].Length;
-        for (int i = 1; i < arrays.Length; i++)
-        {
-            if (arrays[i].Length != length)
-            {
-                throw new ArgumentException("Array lengths must be equal.");
-            }
-        }
-
-        double[] result = new double[length];
-        for (int i = 0; i < length; i++)
-        {
-            for (int j = 0; j < arrays.Length; j++)
-            {
-                result[i] += arrays[j][i];
-            }
-        }
-        return result;
-    }
-    public double[] SubtractArrays(params double[][] arrays)
-    {
-        if (arrays.Length == 0)
-        {
-            throw new ArgumentException("At least one array must be provided.");
-        }
-
-        int length = arrays[0].Length;
-        for (int i = 1; i < arrays.Length; i++)
-        {
-            if (arrays[i].Length != length)
-            {
-                throw new ArgumentException("Array lengths must be equal.");
-            }
-        }
-
-        double[] result = new double[length];
-        for (int i = 0; i < length; i++)
-        {
-            for (int j = 0; j < arrays.Length; j++)
-            {
-                result[i] -= arrays[j][i];
-            }
-        }
-        return result;
-    }
 }
 
 /// <summary>

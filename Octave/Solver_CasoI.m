@@ -56,8 +56,11 @@ plot(t_unity,y_unity, 'g')
 axis ([0 20 -0.50 0.55])
 
 %% Cálculo da diferença entre sinais
-R2 = abs(ya-y_unity)/ya;
+R2 = abs(ya-y_unity')./ya;
 MAPE_unity = 100*sum(R2)/n;
 
 R3 = abs(ya-y(1,:))/ya;
 MAPE_rk = 100*sum(R3)/n;
+
+%%
+correlation1 = corrcoef(ya,y_unity');

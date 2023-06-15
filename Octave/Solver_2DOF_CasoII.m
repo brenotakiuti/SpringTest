@@ -1,26 +1,27 @@
 %% Comparação de resultados da solução do ODE de um
 % massa mola amortecedor 
 
-% Resultado: experimental bateu com analítico
-clear all
+% Resultado: 
+clear  all
 clc
-close all
+close  all
 
-%% Caso I: com um deslocamento inicial equivalente 
-% ao processo de acomodação da massa na mola.
+%% Caso II: com um deslocamento inicial equivalente 
+%  ao processo de acomodação da massa na mola virado 
+%  para baixo
 
 %% Preprocessamento dos dados do UNITY
 sensorOffset1 = 2.950-0.5;
 sensorOffset2 = 5.950-0.5;
-##sensorOffset1 = 1.9559-0.5;
-##sensorOffset2 = 1.9559+3-1;
 ##sensorOffset1 = 2.9559-0.5;
 ##sensorOffset2 = 5.9559-0.5;
 
-data1 = load('-ascii','data11.txt');
-data2 = load('-ascii','data12.txt');
+data1 = load('-ascii','data21.txt');
+data2 = load('-ascii','data22.txt');
 y_unity1 = data1(:,2)-(sensorOffset1);
+y_unity1 = y_unity1 *(-1);
 y_unity2 = data2(:,2)-(sensorOffset2);
+y_unity2 = y_unity2 *(-1);
 t_unity = data1(:,1);
 n = length(t_unity);
 
@@ -31,7 +32,7 @@ tol = 1e-10;
 
 % Solução por RungeKutta45
 odestruct = odeset('AbsTol',tol, 'InitialStep', h);
-[t0, y0] = ode45(@f2, tspan, y0,odestruct);
+[t0, y0] = ode45(@f3, tspan, y0,odestruct);
 t0 = t0';
 y0 = y0';
 t = linspace(tspan(1),tspan(2),n);
@@ -42,13 +43,12 @@ y(2,:) = interp1(t0,y0(2,:),t,"spline");
 plot(t,y(1,:),'b')
 hold on 
 plot(t_unity,y_unity1, 'r--')
-axis ([0 t_unity(end) -2 0])
-
+axis ([0 t_unity(end) -2 0.2])
 figure()
 plot(t,y(2,:),'b')
 hold on 
 plot(t_unity,y_unity2, 'r--')
-axis ([0 t_unity(end) -3 0])
+axis ([0 t_unity(end) -3 0.2])
 
 
 %% Cálculo da diferença entre sinais
@@ -67,7 +67,6 @@ correlation_coefficient2 = max(cc2) / sqrt(sum(y(2,:).^2) * sum(y_unity2'.^2));
 % 2004_Derrick_TimeSeriesAnalysis.pdf
 
 
-
 %% Então como a final é calculado esse offset?
 % Diferente do que acontece nas equações diferenciais,
 % o Unity SIMULA O TRANSIENTE do sistema. Isso quer dizer
@@ -83,4 +82,18 @@ correlation_coefficient2 = max(cc2) / sqrt(sum(y(2,:).^2) * sum(y_unity2'.^2));
 % um obstáculo, nesse caso a base de fixação do sistema.
 % Dessa forma o offset final é: 
 % erro próprio do sensor - deslocamento inicial (estático) + distância entre a massa e base
-
+%
+% *o erro do sensor está em .5441 devido ao collider da base
+% ** existe também o offset da possicao do sensor. Se considerar
+% que o sensor sempre está na superfície do corpo, a sua medida vai
+% estar deslocada:
+%
+% ----
+% |  |  -
+% ----  |
+%  |x   |x+0.501
+%  |    |
+%  v    v
+%
+% Como o cubo tem 1un de lado, a sua medição estará deslocada
+% em 0.5 com relação ao centro.
