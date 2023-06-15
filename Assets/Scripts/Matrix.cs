@@ -109,7 +109,7 @@ public static class Matrix
             {
                 for (int k = 0; k < size; k++)
                 {
-                    result[rowOffset + j, colOffset + k] = matrices[i][j,k];
+                    result[rowOffset + j, colOffset + k] = matrices[i][j, k];
                 }
             }
         }
@@ -149,6 +149,43 @@ public static class Matrix
         }
 
         return vectorArray;
+    }
+
+    public static void SubstituteSubmatrix(double[,] matrix, double[,] submatrix, int[] submatrixIndexes)
+    {
+        int submatrixRows = submatrix.GetLength(0);
+        int submatrixColumns = submatrix.GetLength(1);
+
+        int matrixRows = matrix.GetLength(0);
+        int matrixColumns = matrix.GetLength(1);
+
+        int submatrixStartRow = submatrixIndexes[0];
+        int submatrixStartColumn = submatrixIndexes[1];
+
+        // Check if submatrix dimensions are compatible
+        // if (submatrixRows != submatrixStartRow + submatrixRows || submatrixColumns != submatrixStartColumn + submatrixColumns)
+        // {
+        //     Debug.LogError("Submatrix dimensions are not compatible with the specified indexes.");
+        //     return;
+        // }
+
+        // Check if submatrix is not bigger than the matrix
+        if (submatrixRows > matrixRows || submatrixColumns > matrixColumns)
+        {
+            Debug.LogError("Submatrix dimensions are bigger than the matrix.");
+            return;
+        }
+
+        for (int i = 0; i < submatrixRows; i++)
+        {
+            for (int j = 0; j < submatrixColumns; j++)
+            {
+                int rowIndex = submatrixStartRow + i;
+                int columnIndex = submatrixStartColumn + j;
+
+                matrix[rowIndex, columnIndex] = submatrix[i, j];
+            }
+        }
     }
 
     public static double[] MultiMatrixArray(double[,] matrix, double[] array)
@@ -207,11 +244,11 @@ public static class Matrix
 
     public static double[,] Eye(int n)
     {
-        double[,] matrix = new double[n,n];
+        double[,] matrix = new double[n, n];
 
         for (int i = 0; i < n; i++)
         {
-            matrix[i,i] = 1f;
+            matrix[i, i] = 1f;
         }
 
         return matrix;
@@ -219,13 +256,13 @@ public static class Matrix
 
     public static double[,] Zeroes(int n)
     {
-        double[,] matrix = new double[n,n];
+        double[,] matrix = new double[n, n];
 
         for (int i = 0; i < n; i++)
         {
-            for (int j=0; j<n;j++)
+            for (int j = 0; j < n; j++)
             {
-                matrix[i,j] = 0;    
+                matrix[i, j] = 0;
             }
         }
 

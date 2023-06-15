@@ -44,6 +44,9 @@ public class MySpring3DMatrixEditorGUI : Editor
             EditorGUILayout.Vector3Field("Rotation Difference", yourComponent.GetRotationDifference());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            EditorGUILayout.Vector3Field("Spring Middle Point", yourComponent.GetSpringMiddle());
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
             EditorGUILayout.Vector3Field("New Joint Length: ", yourComponent.GetNewLength());
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal(GUI.skin.box);

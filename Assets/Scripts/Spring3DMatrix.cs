@@ -8,9 +8,9 @@ public class Spring3DMatrix : MonoBehaviour
 {
     //Set up parameters
     [Tooltip("k values")]
-    [SerializeField] private double[] k = new double[9];
+    [SerializeField] private double[] k = new double[36];
     [Tooltip("c values")]
-    [SerializeField] private double[] c = new double[9];
+    [SerializeField] private double[] c = new double[36];
     [Tooltip("spring radius r")]
     [SerializeField] private float r;
     private float J;
@@ -21,17 +21,19 @@ public class Spring3DMatrix : MonoBehaviour
     [Tooltip("The object to which this is anchored")]
     [SerializeField] private GameObject anchorObject;
     [Tooltip("Set up if you want to start simulations with a initial displacement")]
-    [SerializeField] private double[] initialDisplacement = new double[] { 0f, 0f, 0f };
+    [SerializeField] private double[] initialDisplacement = new double[] { 0f, 0f, 0f ,0f, 0f, 0f};
     [Tooltip("If true, the object will collide with it's anchor")]
     [SerializeField] private bool enableCollision = false;
 
     // Internal parameters
+    private double displacementTolerance = 5e-5;
     private float mass;
     private double[,] M; private double[,] K; private double[,] C; private double[,] A1;
     private float dampingSimulated = 0f;
     private Vector3 initialLength;
     private Vector3 newLength = new Vector3(0f, 0f, 0f);
     private Vector3 distance; private Vector3 rotation;
+    private Vector3 springMiddlePoint;
     private float time = 0f;
     private double[] finalState; private double[] initialState;
 
@@ -52,20 +54,7 @@ public class Spring3DMatrix : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rawRotation = GetComponent<RawRotation>();
         mass = rb.mass;
-        //J = Mathf.PI*Mathf.Pow(r,4)/4;
-        M = new double[,]
-        {
-            { mass, 0,0},
-            { 0, mass,0},
-            { 0, 0, mass}
-        };
-        //Matrix.PrintMatrix("Mass Matrix:", M);
-        K = Matrix.ArrayToMatrix(k);
-        C = Matrix.ArrayToMatrix(c);
-        int size = K.GetLength(0);
-        A1 = Matrix.ConcatMatrices(Matrix.Zeroes(size), Matrix.Eye(size), Matrix.MultiScalarMatrix(-1, Matrix.Multiply(Matrix.DiagonalInverse(M), K)), Matrix.MultiScalarMatrix(-1, Matrix.Multiply(Matrix.DiagonalInverse(M), C)));
-        Matrix.PrintMatrix("A1: ", A1);
-
+        J = Mathf.PI*Mathf.Pow(r,4)/4;
         initialPosition = transform.position;
         //initialRotation = transform.rotation.eulerAngles*Mathf.PI/180;
 
@@ -80,7 +69,34 @@ public class Spring3DMatrix : MonoBehaviour
 
         UpdateAnchorPosition();
         initialLength = anchorPosition - initialPosition;
-        
+        springMiddlePoint = Vector3.Lerp(initialPosition,anchorPosition,0.5f);
+
+        M = new double[,]
+        {
+            { mass, 0,0, 0,0,0},
+            { 0, mass,0, 0,0,0},
+            { 0, 0, mass, 0,0,0},
+            {0, 0, 0, J, 0, 0},
+            {0, 0, 0, 0, J, 0}, //I know this is wrong
+            {0, 0, 0, 0, 0, J}
+        };
+        //Matrix.PrintMatrix("Mass Matrix:", M);
+        K = Matrix.ArrayToMatrix(k);
+        C = Matrix.ArrayToMatrix(c);
+        int size = K.GetLength(0);
+
+        double[,] kSub = new double[,]
+        {
+            {0, K[2,2]*springMiddlePoint.z, K[3,3]*springMiddlePoint.y},
+            {K[1,1]*springMiddlePoint.z, 0, K[3,3]*springMiddlePoint.x},
+            {K[1,1]*springMiddlePoint.y, K[2,2]*springMiddlePoint.x, 0}
+        };
+        Matrix.PrintMatrix("Ksub: ", kSub);
+        Matrix.SubstituteSubmatrix(K,kSub, new int[]{3,0});
+        Matrix.PrintMatrix("K: ", K);
+        A1 = Matrix.ConcatMatrices(Matrix.Zeroes(size), Matrix.Eye(size), Matrix.MultiScalarMatrix(-1, Matrix.Multiply(Matrix.DiagonalInverse(M), K)), Matrix.MultiScalarMatrix(-1, Matrix.Multiply(Matrix.DiagonalInverse(M), C)));
+        //Matrix.PrintMatrix("A1: ", A1);
+
         mainCollider = GetComponent<Collider>();
         anchorCollider = anchorObject.GetComponent<Collider>();
         transform.position += Matrix.ArrayToVector3(initialDisplacement)[0];
@@ -121,94 +137,47 @@ public class Spring3DMatrix : MonoBehaviour
         float deltaT = Time.fixedDeltaTime;
         RKF45 solver = new RKF45();
 
-        double[] initialState = new double[6];
+        double[] initialState = new double[12];
 
-        //if (displacement.y != 0 || displacement.x != 0)
-        //{
-            initialState[0] = displacement.x+0.00001;
-            initialState[1] = displacement.y+0.00001;
-            initialState[2] = displacement.z+0.00001;
-            initialState[3] = rb.velocity.x+0.00001;
-            initialState[4] = rb.velocity.y+0.00001;
-            initialState[5] = rb.velocity.z+0.00001;
-            //initialState[1] = angles.z;
-            //initialState[2] = rb.velocity.y;
-            //initialState[3] = rb.angularVelocity.z;
+        if (displacement.magnitude > displacementTolerance)
+        {
+            initialState[0] = displacement.x+0.000001;
+            initialState[1] = displacement.y+0.000000;
+            initialState[2] = displacement.z+0.000000;
+            initialState[3] = angles.x+0.000001;
+            initialState[4] = angles.y+0.000000;
+            initialState[5] = angles.z+0.000000;
+            initialState[6] = rb.velocity.x+0.000001;
+            initialState[7] = rb.velocity.y+0.00000;
+            initialState[8] = rb.velocity.z+0.00000;
+            initialState[9] = rb.angularVelocity.x+0.000001;
+            initialState[10] = rb.angularVelocity.y+0.00000;
+            initialState[11] = rb.angularVelocity.z+0.00000;
+
             //Matrix.PrintArray("Initial state:", initialState); //ok
             //Matrix.PrintArray("A1*x:", Matrix.MultiMatrixArray(A1,initialState));
-            Result result = solver.Solve(springODE, 0, deltaT, initialState, deltaT/10, 1e-10);
+            Result result = solver.Solve(springODE, 0, deltaT, initialState, deltaT/10, 1e-12);
             finalState = result.y[result.y.Count - 1];
             //Matrix.PrintArray("Final state:", finalState);
+
             //Knowing the final state, throw this back to the Physics engine through a new force
             //Matrix.PrintMatrix("KC: ", Matrix.ConcatMatricesInLine(K, C)); //ok
             double[] forceMatrix = Matrix.MultiMatrixArray(Matrix.MultiScalarMatrix(-1, Matrix.ConcatMatricesInLine(K, C)), finalState);
             //Matrix.PrintArray("Force Matrix: ", forceMatrix);
-            // float springDamperForce = (float)forceMatrix[0];
-            // float springDamperTorque = (float)forceMatrix[1];
 
-            //ArraySegment<double> segment = new ArraySegment<double>(forceMatrix, 0, 3);
-            //double[] springDamperForce = segment.Select(element => (double)element).ToArray();
-
-            // if (float.IsNaN(springDamperForce))
-            // {
-            //     springDamperForce = 0;
-            // }
-            //springDamperForce = springDamperForce.Select(element => double.IsNaN(element) ? 0.0f : element).ToArray();
             forceMatrix = forceMatrix.Select(element => double.IsNaN(element) ? 0.0f : element).ToArray();
 
             //Debug.Log(springDamperForce);
             Vector3 force = new Vector3((float)forceMatrix[0], (float)forceMatrix[1], (float)forceMatrix[2]);
-            // torqueZ = new Vector3(0f,0f,springDamperTorque);
+            Vector3 torque = new Vector3((float)forceMatrix[3],(float)forceMatrix[4],(float)forceMatrix[5]);
             //Vector3[] force = Matrix.ArrayToVector3(forceMatrix);
 
 
             rb.AddForce(force);
-            //rb.AddTorque(force[1]);
+            rb.AddTorque(torque);
             anchorObject.GetComponent<Rigidbody>().AddForce(-force);
-            //anchorObject.GetComponent<Rigidbody>().AddTorque(-force[1]);
-        //}
-
-        // if(displacement.x != 0)
-        // {
-        //     initialState[0] = displacement.x;
-        //     initialState[2] = rb.velocity.x;
-        //     Result result = solver.Solve(springODE, 0, deltaT, initialState, 0.005, 1e-10);
-        //     finalState = result.y[result.y.Count-1];
-
-        //     //Knowing the final state, throw this back to the Physics engine through a new force
-        //     //float springDamperForce = (float)(-K * finalState[0] - dampingSimulated * finalState[1]);
-        //     float springDamperForce = 0;
-
-        //     if (float.IsNaN(springDamperForce))
-        //     {
-        //         springDamperForce = 0;
-        //     }
-
-
-        //     Vector3 forceX = new Vector3(springDamperForce, 0f, 0f);
-        //     rb.AddForce(forceX);
-        //     anchorObject.GetComponent<Rigidbody>().AddForce(-forceX);
-        // }
-
-        // if(displacement.z != 0)
-        // {
-        //     initialState[0] = displacement.z;
-        //     initialState[2] = rb.velocity.z;
-        //     Result result = solver.Solve(springODE, 0, deltaT, initialState, 0.005, 1e-10);
-        //     finalState = result.y[result.y.Count-1];
-
-        //     //Knowing the final state, throw this back to the Physics engine through a new force
-        //     //float springDamperForce = (float)(-K * finalState[0] - dampingSimulated * finalState[1]);
-        //     float springDamperForce = 0;
-        //     if (float.IsNaN(springDamperForce))
-        //     {
-        //         springDamperForce = 0;
-        //     }
-
-        //     Vector3 forceZ = new Vector3(0f, 0f, springDamperForce);
-        //     rb.AddForce(forceZ);
-        //     anchorObject.GetComponent<Rigidbody>().AddForce(-forceZ);
-        // }
+            anchorObject.GetComponent<Rigidbody>().AddTorque(-torque);
+        }
     }
 
     private double[] springODE(double t, double[] x)
@@ -221,19 +190,6 @@ public class Spring3DMatrix : MonoBehaviour
         return y;
     }
 
-    // public void applyForceY()
-    // {
-    //     rb.AddForce(0f, addForceMagnitude, 0f);
-    // }
-    // public void applyForceX()
-    // {
-    //     rb.AddForce( addForceMagnitude, 0f, 0f);
-    // }
-
-    // public void applyForceZ()
-    // {
-    //     rb.AddForce( 0f, 0f, addForceMagnitude);
-    // }
 
 #if UNITY_EDITOR
     // This code will only be compiled in the Unity Editor
@@ -293,6 +249,10 @@ public class Spring3DMatrix : MonoBehaviour
     public Vector3 GetInitialLength()
     {
         return initialLength;
+    }
+    public Vector3 GetSpringMiddle()
+    {
+        return springMiddlePoint;
     }
     public Vector3 GetNewLength()
     {
