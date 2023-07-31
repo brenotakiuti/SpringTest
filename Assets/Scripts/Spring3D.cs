@@ -24,7 +24,6 @@ public class Spring3D : MonoBehaviour
     [SerializeField] private float initialDisplacement = 0f;
     [Tooltip("If true, the object will collide with it's anchor")]
     [SerializeField] private bool enableCollision = false;
-    //[SerializeField] private DrawSpringMesh drawSpringMesh;
 
     // Internal parameters
     private float mass;
@@ -34,12 +33,9 @@ public class Spring3D : MonoBehaviour
     private float time = 0f;
     private double[] linear_initialState; private double[] torsional_initialState;
     private double[] linear_finalState; private double[] torsional_finalState;
-    //private double displacementTolerance = 5e-5; 
     private Vector3 newLength = new Vector3(0f, 0f, 0f);
     private Vector3 newRotation;
-    //public Quaternion newRotation;
     private Vector3 distance; public Vector3 rotation;
-    //public Quaternion rotation;
     private Vector3 springMiddlePoint;
 
     //ZERO (initial) variables
@@ -47,7 +43,6 @@ public class Spring3D : MonoBehaviour
     private Vector3 initialLength;
     private Vector3 anchorPosition = new Vector3(0f, 0f, 0f);
     private Vector3 initialRotation;
-    //public Quaternion initialRotation;
 
     //Reference variables
     private Rigidbody rb;
@@ -59,22 +54,14 @@ public class Spring3D : MonoBehaviour
     public SpringJobData jData;
 
     // Start is called before the first frame update
-    void Start()
-    {
-        //StartScript();
-    }
 
     public void StartScript()
     {
-        //drawSpringMesh = GetComponent<DrawSpringMesh>();
         rb = gameObject.GetComponent<Rigidbody>();
         rawRotation = GetComponent<RawRotation>();
         anchorRawRotation = anchorObject.GetComponent<RawRotation>();
         mass = rb.mass;
         initialPosition = transform.position;
-
-        //drawSpringMesh.AnchorObject = anchorObject;
-        //drawSpringMesh.BaseObject = gameObject;
 
         simulated_C = linear_C + dampingCorrection;
 
@@ -86,11 +73,7 @@ public class Spring3D : MonoBehaviour
         UpdateAnchorPosition();
         J = CalculateJ();
         initialLength = anchorPosition - initialPosition;
-        //initialRotation = anchorObject.transform.eulerAngles - transform.eulerAngles;
-        //initialRotation = transform.rotation*Quaternion.Inverse(anchorObject.transform.rotation);
-        //initialRotation = anchorRawRotation.GetRawQuaternion() * Quaternion.Inverse(rawRotation.GetRawQuaternion());
         initialRotation = RawRotation.CalculateRotationDifference(anchorObject.transform.rotation, transform.rotation, 0);
-        //initialRotation = new Vector3(anchorObject.transform.eulerAngles.x-transform.eulerAngles.x,anchorObject.transform.eulerAngles.y-transform.eulerAngles.y,anchorObject.transform.eulerAngles.z-transform.eulerAngles.z);
 
         springMiddlePoint = Vector3.Lerp(initialPosition, anchorPosition, 0.5f);
 
@@ -98,11 +81,6 @@ public class Spring3D : MonoBehaviour
         anchorCollider = anchorObject.GetComponent<Collider>();
 
         UpdateJDataStruct();
-    }
-
-    void FixedUpdate()
-    {
-        //FixedUpdateScript();
     }
 
     public void FixedUpdateScript()
@@ -121,29 +99,19 @@ public class Spring3D : MonoBehaviour
         // The real deal
         UpdateAnchorPosition();
         newLength = anchorPosition - transform.position;
-        //newRotation = new Vector3(anchorObject.transform.eulerAngles.x-transform.eulerAngles.x,anchorObject.transform.eulerAngles.y-transform.eulerAngles.y,anchorObject.transform.eulerAngles.z-transform.eulerAngles.z);
-        //newRotation = transform.rotation * Quaternion.Inverse(anchorObject.transform.rotation);
-        //newRotation = anchorRawRotation.GetRawQuaternion() * Quaternion.Inverse(rawRotation.GetRawQuaternion());
-        newRotation = RawRotation.CalculateRotationDifference(transform.rotation,anchorObject.transform.rotation, 0);
-        Debug.Log("Anchor rotation=" + anchorObject.transform.eulerAngles.x + ", " + anchorObject.transform.eulerAngles.y+ ", " + anchorObject.transform.eulerAngles.z);
+        newRotation = RawRotation.CalculateRotationDifference(transform.rotation, anchorObject.transform.rotation, 0);
 
         //Use the conditions of the rigidbody as initial conditions for the solution of the ODE
         float deltaT = Time.fixedDeltaTime;
         distance = initialLength - newLength;
         rotation = initialRotation + newRotation;
-        //rotation = (initialRotation * Quaternion.Inverse(newRotation)).eulerAngles;
-        //rotation = RawRotation.CalculateRotationDifference(newRotation, initialRotation,  0) * Mathf.PI / 180;
-        //rotation = RawRotation.CalculateRotationDifference(transform.rotation, anchorObject.transform.rotation,  0) * Mathf.PI / 180;
 
         float[] displacements6DOF = TwoVector3stoArray(distance, rotation);
         float[] velocitys6DOF = TwoVector3stoArray(rb.velocity, rb.angularVelocity);
         float[] arrayK = TwoVector3stoArray(linear_K, torsional_K);
         float[] arrayC = TwoVector3stoArray(simulated_C, torsional_C);
-        //Debug.Log("Displacement 6DOF = " + displacements6DOF[0] +", "+ displacements6DOF[1] +", "+ displacements6DOF[2] +", "+ displacements6DOF[3] +", "+ displacements6DOF[4] +", "+ displacements6DOF[5]);
 
         // In the Y direction (new)
-        //ApplyForce(distance);
-        //ApplyTorque(rotation);
         float[] arrayForces = ArrayCalculateForce(displacements6DOF, velocitys6DOF, arrayK, arrayC);
         NewApplyForce(arrayForces);
 
@@ -191,28 +159,22 @@ public class Spring3D : MonoBehaviour
         {
             default:
                 result = solver.Solve(linearODEx, 0, deltaT, initialState, 0.005);
-                //result = solver.Solve(linearODEx, 0, deltaT, initialState, 0.005, 1e-10);
                 break;
             case 1:
                 result = solver.Solve(linearODEy, 0, deltaT, initialState, 0.005);
-                //result = solver.Solve(linearODEy, 0, deltaT, initialState, 0.005, 1e-10);
                 break;
             case 2:
                 result = solver.Solve(linearODEz, 0, deltaT, initialState, 0.005);
-                //result = solver.Solve(linearODEz, 0, deltaT, initialState, 0.005, 1e-10);
                 break;
 
             case 3:
                 result = solver.Solve(torsionalODEx, 0, deltaT, initialState, 0.005);
-                //result = solver.Solve(torsionalODEx, 0, deltaT, initialState, 0.005, 1e-10);
                 break;
             case 4:
                 result = solver.Solve(torsionalODEy, 0, deltaT, initialState, 0.005);
-                //result = solver.Solve(torsionalODEy, 0, deltaT, initialState, 0.005, 1e-10);
                 break;
             case 5:
                 result = solver.Solve(torsionalODEz, 0, deltaT, initialState, 0.005);
-                //result = solver.Solve(torsionalODEz, 0, deltaT, initialState, 0.005, 1e-10);
                 break;
         }
         return result;
@@ -233,8 +195,7 @@ public class Spring3D : MonoBehaviour
                 initialState[1] = velocity[i];
 
                 // Solve
-                Result result = SolveODE6DOF(i,deltaT,initialState);
-
+                Result result = SolveODE6DOF(i, deltaT, initialState);
                 linear_finalState = result.y[result.y.Count - 1];
 
                 //Knowing the final state, throw this back to the Physics engine through a new force
@@ -262,149 +223,6 @@ public class Spring3D : MonoBehaviour
         anchorObject.GetComponent<Rigidbody>().AddTorque(-angularForces);
     }
 
-    private void ApplyForce(Vector3 displacement)
-    {
-        float deltaT = Time.fixedDeltaTime;
-        RKF45 solver = new RKF45();
-
-        if (displacement.x != 0)
-        {
-            double[] initialStateX = new double[2];
-            initialStateX[0] = displacement.x;
-            initialStateX[1] = rb.velocity.x;
-
-            Result result = solver.Solve(linearODEx, 0, deltaT, initialStateX, 0.005, 1e-10);
-            linear_finalState = result.y[result.y.Count - 1];
-
-
-            //Knowing the final state, throw this back to the Physics engine through a new force
-            float springDamperForce = (float)(-linear_K.x * linear_finalState[0] - simulated_C.x * linear_finalState[1]);
-
-            if (float.IsNaN(springDamperForce))
-            {
-                springDamperForce = 0;
-            }
-            Vector3 forceX = new Vector3(springDamperForce, 0f, 0f);
-
-            rb.AddForce(forceX);
-            anchorObject.GetComponent<Rigidbody>().AddForce(-forceX);
-        }
-
-        if (displacement.y != 0)
-        {
-            double[] initialStateY = new double[2];
-            initialStateY[0] = displacement.y;
-            initialStateY[1] = rb.velocity.y;
-            Result result = solver.Solve(linearODEy, 0, deltaT, initialStateY, 0.005, 1e-10);
-            linear_finalState = result.y[result.y.Count - 1];
-
-            //Knowing the final state, throw this back to the Physics engine through a new force
-            float springDamperForce = (float)(-linear_K.y * linear_finalState[0] - simulated_C.y * linear_finalState[1]);
-
-            if (float.IsNaN(springDamperForce))
-            {
-                springDamperForce = 0;
-            }
-            Vector3 forceY = new Vector3(0f, springDamperForce, 0f);
-
-            rb.AddForce(forceY);
-            anchorObject.GetComponent<Rigidbody>().AddForce(-forceY);
-        }
-
-        if (displacement.z != 0)
-        {
-            double[] initialStateZ = new double[2];
-            initialStateZ[0] = displacement.z;
-            initialStateZ[1] = rb.velocity.z;
-            Result result = solver.Solve(linearODEz, 0, deltaT, initialStateZ, 0.005, 1e-10);
-            linear_finalState = result.y[result.y.Count - 1];
-
-
-            //Knowing the final state, throw this back to the Physics engine through a new force
-            float springDamperForce = (float)(-linear_K.z * linear_finalState[0] - simulated_C.z * linear_finalState[1]);
-
-            if (float.IsNaN(springDamperForce))
-            {
-                springDamperForce = 0;
-            }
-            Vector3 forceZ = new Vector3(0f, 0f, springDamperForce);
-
-            rb.AddForce(forceZ);
-            anchorObject.GetComponent<Rigidbody>().AddForce(-forceZ);
-        }
-    }
-
-    private void ApplyTorque(Vector3 rotation)
-    {
-        float deltaT = Time.fixedDeltaTime;
-        RKF45 solver = new RKF45();
-
-        if (rotation.x != 0)
-        {
-            double[] initialStateX = new double[2];
-            initialStateX[0] = rotation.x;
-            initialStateX[1] = rb.angularVelocity.x;
-            Result result = solver.Solve(torsionalODEx, 0, deltaT, initialStateX, 0.005, 1e-10);
-            torsional_finalState = result.y[result.y.Count - 1];
-
-            //Knowing the final state, throw this back to the Physics engine through a new force
-            float springDamperTorque = (float)(-torsional_K.x * torsional_finalState[0] - torsional_C.x * torsional_finalState[1]);
-
-
-            if (float.IsNaN(springDamperTorque))
-            {
-                springDamperTorque = 0;
-            }
-            Vector3 torqueX = new Vector3(springDamperTorque, 0f, 0f);
-
-            rb.AddTorque(torqueX);
-            anchorObject.GetComponent<Rigidbody>().AddTorque(-torqueX);
-        }
-
-        if (rotation.y != 0)
-        {
-            double[] initialStateY = new double[2];
-            initialStateY[0] = rotation.y;
-            initialStateY[1] = rb.angularVelocity.y;
-            Result result = solver.Solve(torsionalODEy, 0, deltaT, initialStateY, 0.005, 1e-10);
-            torsional_finalState = result.y[result.y.Count - 1];
-
-            //Knowing the final state, throw this back to the Physics engine through a new force
-            float springDamperTorque = (float)(-torsional_K.y * torsional_finalState[0] - torsional_C.y * torsional_finalState[1]);
-
-
-            if (float.IsNaN(springDamperTorque))
-            {
-                springDamperTorque = 0;
-            }
-            Vector3 torqueY = new Vector3(0f, springDamperTorque, 0f);
-
-            rb.AddTorque(torqueY);
-            anchorObject.GetComponent<Rigidbody>().AddTorque(-torqueY);
-        }
-
-        if (rotation.z != 0)
-        {
-            double[] initialStateZ = new double[2];
-            initialStateZ[0] = rotation.z;
-            initialStateZ[1] = rb.angularVelocity.z;
-            Result result = solver.Solve(torsionalODEz, 0, deltaT, initialStateZ, 0.005, 1e-10);
-            torsional_finalState = result.y[result.y.Count - 1];
-
-            //Knowing the final state, throw this back to the Physics engine through a new force
-            float springDamperTorque = (float)(-torsional_K.z * torsional_finalState[0] - torsional_C.z * torsional_finalState[1]);
-
-
-            if (float.IsNaN(springDamperTorque))
-            {
-                springDamperTorque = 0;
-            }
-            Vector3 torqueZ = new Vector3(0f, 0f, springDamperTorque);
-
-            rb.AddTorque(torqueZ);
-            anchorObject.GetComponent<Rigidbody>().AddTorque(-torqueZ);
-        }
-    }
     private Vector3 CalculateJ()
     {
         Vector3 scale = transform.localScale;
@@ -495,16 +313,6 @@ public class Spring3D : MonoBehaviour
     }
 #endif
 
-    private void OnDrawGizmos()
-    {
-        Vector3 sphereSize = new Vector3(0.2f, 0.2f, 0.2f);
-
-        Gizmos.color = Color.green;
-        // Draw the anchor points using Gizmos
-        Gizmos.DrawCube(transform.position, sphereSize); // Replace transform.position with the position of your anchor point
-        // If you have a second anchor point, you can draw it as well
-        Gizmos.DrawCube(anchorPosition, sphereSize); // Replace secondAnchorPosition with the position of your second anchor point
-    }
     public void UpdateAnchorPosition()
     {
         if (anchorObject != null)
