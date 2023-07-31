@@ -174,7 +174,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -195,18 +194,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 30, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1418476073}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &86974867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,7 +238,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &86974869
 Rigidbody:
@@ -336,18 +329,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 10, y: 10, z: 10}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 708098953}
   initialDisplacement: 0
   enableCollision: 1
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!1 &368217739
 GameObject:
   m_ObjectHideFlags: 0
@@ -371,7 +359,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &368217740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,7 +372,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -405,18 +392,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 200, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1260740225}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &368217742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,7 +436,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &368217744
 Rigidbody:
@@ -571,7 +552,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &563566750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -584,7 +565,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -605,18 +585,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 200, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 368217739}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &563566752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -654,7 +629,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &563566754
 Rigidbody:
@@ -785,7 +759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -806,18 +779,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 30, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1260740225}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &660025382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,18 +798,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 30, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1457039156}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &660025383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -879,7 +842,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &660025385
 Rigidbody:
@@ -1023,7 +985,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -1044,18 +1005,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 200, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 1, y: 1, z: 1}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1865076909}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &708098957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1093,7 +1049,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &708098959
 Rigidbody:
@@ -1281,7 +1236,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1106780761
 Transform:
   m_ObjectHideFlags: 0
@@ -1321,7 +1276,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1260740226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1334,7 +1289,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -1355,18 +1309,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 200, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1733912146}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1260740228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1404,7 +1353,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &1260740230
 Rigidbody:
@@ -1647,7 +1595,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef40a00d4e7a8de45a30acaaed7a097e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOn: 0
   anchorOffset: {x: 0, y: 0, z: 0}
   baseOffset: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 83da5551409dae34492cb387d8fa61e8, type: 2}
@@ -1668,18 +1615,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 30, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 1733912146}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1457039159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1692,18 +1634,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ce8e1e03b017840ae9419e2d4af8b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  linear_K: {x: 30, y: 30, z: 30}
-  torsional_K: {x: 1, y: 1, z: 1}
-  linear_C: {x: 0, y: 0, z: 0}
-  torsional_C: {x: 0, y: 0, z: 0}
+  stiffness: 1
+  damping: 0
   addForceMagnitude: 100
-  dampingCorrection: {x: -0.104, y: -0.104, z: -0.104}
+  dampingCorrection: -0.208
   anchorObject: {fileID: 86974863}
   initialDisplacement: 0
   enableCollision: 0
-  newRotation: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  initialRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1457039160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1741,7 +1678,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!54 &1457039162
 Rigidbody:
@@ -2048,7 +1984,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a8920f46c2f32445a4e616274a93df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rawRotation: {x: 0, y: 0, z: 0}
   turnTolerance: 0
 --- !u!1 &2007022274
 GameObject:
