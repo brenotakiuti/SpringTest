@@ -6,7 +6,7 @@ using UnityEditor;
 
 public class DrawSpringMesh : MonoBehaviour
 {
-
+    [SerializeField] private bool turnOn = true;
     [SerializeField] private Vector3 anchorOffset;
     [SerializeField] private Vector3 baseOffset;
     [SerializeField] private Material material;
@@ -16,6 +16,7 @@ public class DrawSpringMesh : MonoBehaviour
     [SerializeField] private float springWidth = 0.1f;
     [SerializeField] private GameObject vertexMarker;
     [SerializeField] private double tolerance = 1e-6;
+
 
     private GameObject anchorObject;
     private GameObject baseObject;
@@ -41,19 +42,33 @@ public class DrawSpringMesh : MonoBehaviour
         gameObject.transform.parent = newParentObject.transform;
         // Create a new object for the spring and add all components needed for the mesh
         drawMesh.BuildMeshComponent(newParentObject, material);
+        anchorObject = gameObject.GetComponent<Spring3D>().GetAnchorObject();
+        baseObject = gameObject;
+
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        initialPosition = baseObject.transform.position + baseOffset;
-        anchorPosition = anchorObject.transform.position + anchorOffset;
-        Vector2 delta = (initialPosition - anchorPosition) / (numberOfHelixes - 1);
-        if (Mathf.Abs(delta.magnitude - previousDelta.magnitude) > tolerance)
+        if (turnOn)
         {
-            UpdateSpringMesh(delta);
-            previousDelta = delta;
+            initialPosition = baseObject.transform.position + baseOffset;
+            anchorPosition = anchorObject.transform.position + anchorOffset;
+            Vector3 difference = (initialPosition - anchorPosition);
+            Vector2 delta = difference / (numberOfHelixes - 1);
+            Vector3 deltaVersor = Vector3.Normalize(difference);
+            Vector3 rotation = CalculateRotationAngles(deltaVersor, Vector3.up);
+            //Debug.Log("P1 = " + deltaVersor);
+            //Debug.Log("P2 = " + Vector3.up);
+            //Debug.Log("Rotation vector = " + rotation);
+            if (Mathf.Abs(delta.magnitude - previousDelta.magnitude) > tolerance)
+            {
+                UpdateSpringMesh(delta);
+                previousDelta = delta;
+
+            }
         }
+
     }
 
 
@@ -74,6 +89,25 @@ public class DrawSpringMesh : MonoBehaviour
 
         // Update the mesh
         drawMesh.UpdateMesh(mesh);
+    }
+
+    private Vector3 RotateCoordinates(Vector3 from, Vector3 rotation)
+    {
+        float xGlobal = (float)((from.x * Math.Cos(rotation.y) * Math.Cos(rotation.z)) - (from.y * Math.Sin(rotation.z) * Math.Cos(rotation.y)) + (from.z * Math.Sin(rotation.y)));
+        float yGlobal = (float)((from.x * (Math.Sin(rotation.x) * Math.Sin(rotation.y) * Math.Cos(rotation.z) + Math.Cos(rotation.x) * Math.Sin(rotation.z))) + (from.y * (Math.Sin(rotation.x) * Math.Sin(rotation.y) * Math.Sin(rotation.z) - Math.Cos(rotation.x) * Math.Cos(rotation.z))) - (from.z * Math.Sin(rotation.x) * Math.Cos(rotation.y)));
+        float zGlobal = (float)((from.x * (Math.Cos(rotation.x) * Math.Sin(rotation.y) * Math.Cos(rotation.z) - Math.Sin(rotation.x) * Math.Sin(rotation.z))) + (from.y * (Math.Cos(rotation.x) * Math.Sin(rotation.y) * Math.Sin(rotation.z) + Math.Sin(rotation.x) * Math.Cos(rotation.z))) + (from.z * Math.Cos(rotation.x) * Math.Cos(rotation.y)));
+        return new Vector3(xGlobal, yGlobal, zGlobal);
+    }
+
+    private Vector3 CalculateRotationAngles(Vector3 from, Vector3 to)
+    {
+        Vector3 diff = new Vector3(to.x - from.x, to.y - from.y, to.z - from.z);
+        float rotationX = (float)Math.Atan2(diff.y, diff.z);
+        float rotationY = (float)Math.Atan2(diff.x, Math.Sqrt(diff.y * diff.y + diff.z * diff.z));
+        float rotationZ = (float)Math.Atan2(diff.y, diff.x);
+        Vector3 rotation = new Vector3(rotationX, rotationY, rotationZ);
+
+        return rotation;
     }
 
     /// <summary>

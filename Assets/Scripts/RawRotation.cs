@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class RawRotation : MonoBehaviour
 {
-    private Vector3 rawRotation;
+    public Vector3 rawRotation;
+    private Quaternion rawQuaternion;
     private Vector3 turns;
     private Vector3 deltaEuler;
     private Quaternion previousRotation;
@@ -19,29 +20,35 @@ public class RawRotation : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        CalculateRotationDifference();
+        rawRotation += CalculateRotationDifference(transform.rotation, previousRotation, turnTolerance);
+        rawQuaternion = transform.rotation * Quaternion.Inverse(previousRotation);
 
         CalculateTurns();
 
         previousRotation = transform.rotation;
     }
 
-    private void CalculateRotationDifference()
+    public Quaternion GetRawQuaternion()
     {
-        Quaternion deltaQuaternion = transform.rotation * Quaternion.Inverse(previousRotation);
-        deltaEuler = deltaQuaternion.eulerAngles;
+        return rawQuaternion;
+    } 
+
+    public static Vector3 CalculateRotationDifference(Quaternion rotation1, Quaternion rotation2, int turnTolerance)
+    {
+        Quaternion deltaQuaternion = rotation1 * Quaternion.Inverse(rotation2);
+        Vector3 deltaEuler = deltaQuaternion.eulerAngles;
 
         // Tolerance Check. In a FixedDeltaTime, deltaEuler angles cannot be bigger than or close to 360
         if (Mathf.Abs(deltaEuler.x) >= 180f - turnTolerance)
-            deltaEuler.x -= 360f;
+             deltaEuler.x -= 360f;
 
         if (Mathf.Abs(deltaEuler.y) >= 180f - turnTolerance)
-            deltaEuler.y -= 360f;
+             deltaEuler.y -= 360f;
 
         if (Mathf.Abs(deltaEuler.z) >= 180f - turnTolerance)
-            deltaEuler.z -= 360f;
+             deltaEuler.z -= 360f;
 
-        rawRotation += deltaEuler;
+        return deltaEuler;
     }
 
     private void CalculateTurns()

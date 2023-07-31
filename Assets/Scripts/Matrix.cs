@@ -382,6 +382,16 @@ public static class Matrix
         return result;
     }
 
+    public static Vector3 MultiVector3PbyP(Vector3 vector1, Vector3 vector2)
+    {
+        Vector3 result = new Vector3(0f,0f,0f);
+        result.x = vector1.x*vector2.x;
+        result.y = vector1.y*vector2.y;
+        result.z = vector1.z*vector2.z;
+
+        return result;
+    }
+
 
     public static double[,] JaggedToMultidimensional(double[][] jaggedArray)
     {

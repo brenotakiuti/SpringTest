@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/ElefimTest.unity
+    guid: 7dc0e9e1a81bd3c4694b37d4f64daa9c
+  - enabled: 1
+    path: Assets/Scenes/SpringManager.unity
+    guid: 67a796e14999e72469c584ead7692981
   m_configObjects: {}

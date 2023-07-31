@@ -14,8 +14,8 @@ public class Spring1DLT : MonoBehaviour
     private float J;
     [Tooltip("The magnitude of the force applied by ApplyForce()")]
     [SerializeField] private double[] addForceMagnitude = new double[]{100f, 0};
-    [Tooltip("This is a correction factor, use this to eliminate Unity's internal damping. The default value is -0.208f")]
-    [SerializeField] private double dampingCorrection = -0.208f; //standard value: -0.208
+    //[Tooltip("This is a correction factor, use this to eliminate Unity's internal damping. The default value is -0.208f")]
+    //[SerializeField] private double dampingCorrection = -0.208f; //standard value: -0.208
     [Tooltip("The object to which this is anchored")]
     [SerializeField] private GameObject anchorObject;
     [Tooltip("Set up if you want to start simulations with a initial displacement")]
