@@ -1,7 +1,7 @@
 using Unity.Jobs;
 using UnityEngine;
 
-[RequireComponent(typeof(DrawSpringMesh)), RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(RawRotation))]
+[RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(RawRotation))]
 // This spring works in 3D but it is linear in all direction. Not a precise simulation of 3D, but precise 1D simulation.
 public class Spring3D : MonoBehaviour
 {
@@ -24,6 +24,8 @@ public class Spring3D : MonoBehaviour
     [SerializeField] private float initialDisplacement = 0f;
     [Tooltip("If true, the object will collide with it's anchor")]
     [SerializeField] private bool enableCollision = false;
+    [Tooltip("If true, the anchor is fixed")]
+    [SerializeField] private bool anchorFixed = false;
 
     // Internal parameters
     private float mass;
@@ -33,10 +35,15 @@ public class Spring3D : MonoBehaviour
     private float time = 0f;
     private double[] linear_initialState; private double[] torsional_initialState;
     private double[] linear_finalState; private double[] torsional_finalState;
-    private Vector3 newLength = new Vector3(0f, 0f, 0f);
+    public Vector3 newLength = new Vector3(0f, 0f, 0f);
+    private Vector3 instaLength;
     private Vector3 newRotation;
+    public Vector3 rotate;
     private Vector3 distance; public Vector3 rotation;
     private Vector3 springMiddlePoint;
+    private Vector3 lastVelocity;
+    public Vector3 acceleration;
+    public Vector3 instantForce;
 
     //ZERO (initial) variables
     private Vector3 initialPosition;
@@ -81,6 +88,7 @@ public class Spring3D : MonoBehaviour
         anchorCollider = anchorObject.GetComponent<Collider>();
 
         UpdateJDataStruct();
+        lastVelocity = rb.velocity;
     }
 
     public void FixedUpdateScript()
@@ -99,7 +107,11 @@ public class Spring3D : MonoBehaviour
         // The real deal
         UpdateAnchorPosition();
         newLength = anchorPosition - transform.position;
+        //RotateAnchor();
         newRotation = RawRotation.CalculateRotationDifference(transform.rotation, anchorObject.transform.rotation, 0);
+        acceleration = GetAcceleration();
+        instantForce = acceleration*mass;
+        instaLength = anchorPosition-transform.position;
 
         //Use the conditions of the rigidbody as initial conditions for the solution of the ODE
         float deltaT = Time.fixedDeltaTime;
@@ -116,7 +128,9 @@ public class Spring3D : MonoBehaviour
         NewApplyForce(arrayForces);
 
         time += deltaT;
+        lastVelocity = rb.velocity;
     }
+
 
     private float[] TwoVector3stoArray(Vector3 vec1, Vector3 vec2)
     {
@@ -188,7 +202,7 @@ public class Spring3D : MonoBehaviour
 
         for (int i = 0; i < n; i++)
         {
-            if (displacement[i] != 0)
+            //if (displacement[i] != 0) //commented to test linear/torsional connection
             {
                 double[] initialState = new double[2];
                 initialState[0] = displacement[i];
@@ -219,8 +233,8 @@ public class Spring3D : MonoBehaviour
 
         rb.AddForce(linearForces);
         anchorObject.GetComponent<Rigidbody>().AddForce(-linearForces);
-        rb.AddTorque(angularForces);
-        anchorObject.GetComponent<Rigidbody>().AddTorque(-angularForces);
+        //rb.AddTorque(angularForces);
+        //anchorObject.GetComponent<Rigidbody>().AddTorque(-angularForces);
     }
 
     private Vector3 CalculateJ()
@@ -276,6 +290,7 @@ public class Spring3D : MonoBehaviour
         double[] y = (double[])x.Clone();
         y[0] = x[1];
         y[1] = -torsional_C.z / J.z * x[1] - torsional_K.z / J.z * x[0];
+        //y[1] = -torsional_C.z / J.z * x[1] - torsional_K.z / J.z * x[0] + instantForce.y*newLength.x*100/ J.z + instantForce.x*newLength.y*100/ J.z;
         return y;
     }
 
@@ -349,6 +364,11 @@ public class Spring3D : MonoBehaviour
     public GameObject GetAnchorObject()
     {
         return anchorObject;
+    }
+
+    public Vector3 GetAcceleration()
+    {
+        return (rb.velocity - lastVelocity) / Time.fixedDeltaTime;
     }
 
 }

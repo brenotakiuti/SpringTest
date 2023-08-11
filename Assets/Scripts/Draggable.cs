@@ -3,13 +3,8 @@ using UnityEngine;
 
 // From: Jayanam Games
 // https://www.patreon.com/posts/unity-3d-drag-22917454
-public class DraggableForce : MonoBehaviour
+public class Draggable : MonoBehaviour
 {
-    protected Vector3 mOffset;
-    protected float mZCoord;
-    protected Vector3 rotation;
-    protected Rigidbody rb;
-    [SerializeField] protected float forceMultiplier = 2f;
     [SerializeField] protected bool isButtonDown = false;
     [SerializeField] protected float rotationScale = 1;
     [SerializeField] protected bool isRotatable = false;
@@ -17,14 +12,21 @@ public class DraggableForce : MonoBehaviour
     [SerializeField] protected bool isRotatableX = false;
     [SerializeField] protected bool isRotatableY = false;
     [SerializeField] protected bool isRotatableZ = false;
-    [SerializeField] protected bool isMovableX = false;
-    [SerializeField] protected bool isMovableY = false;
-    [SerializeField] protected bool isMovableZ = false;
     [SerializeField] protected Color movableColor = Color.yellow;
     [SerializeField] protected Color rotatableColor = Color.green;
-    [SerializeField] protected string snapTag = "Snap";
     //private Renderer rnder;
-    protected List<Color> startColors = new List<Color>();
+    [SerializeField] protected List<Color> startColors = new List<Color>();
+    [SerializeField] protected bool isSnap = false;
+    [SerializeField] protected string snapTag = "Snap";
+    protected Vector3 mOffset;
+    protected float mZCoord;
+    protected Vector3 rotation;
+    public Vector3 snapCoordinates;
+    protected Rigidbody rb;
+    protected GridController gridController;
+    protected bool isMouseOver = false;
+    protected GameObject previewObject;
+    protected Marker triggeredMarker;
 
     public virtual void Start()
     {
@@ -34,6 +36,26 @@ public class DraggableForce : MonoBehaviour
         {
             startColors.Add(rnder.material.color);
         }
+        gridController = FindObjectOfType<GridController>();
+
+        previewObject = Instantiate(gameObject,Vector3.zero,Quaternion.identity);
+        // Get all components attached to the GameObject
+        Component[] components = previewObject.GetComponents<Component>();
+
+        // Loop through the components and destroy those that are not the componentToKeep
+        foreach (Component component in components)
+        {
+            if (component.GetType() != typeof(MeshRenderer) &&
+                component.GetType() != typeof(MeshFilter) &&
+                component.GetType() != typeof(Transform))
+            {
+                Destroy(component);
+            }
+        }
+        Color materialColor = previewObject.GetComponent<MeshRenderer>().material.color;
+        materialColor.a = 0.5f;
+        previewObject.GetComponent<MeshRenderer>().material.color = materialColor;
+        previewObject.SetActive(false);
     }
 
     void Update()
@@ -47,22 +69,37 @@ public class DraggableForce : MonoBehaviour
         {
             isRotatable = false;
         }
-        if (isMovableX || isMovableY || isMovableZ)
-        {
-            //print("yes");
-            isMovable = true;
-        }
-        else
-        {
-            isMovable = false;
-        }
         //print(rotation);
+        if (Input.GetMouseButton(0) && isMouseOver)
+        {
+            if (isMovable)
+            {
+                transform.root.position = GetMouseAsWorldPoint() + mOffset;
+            }
+            else if (isRotatable)
+            {
+                Rotate();
+            }
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            isMouseOver = false;
+            if(isSnap){
+                transform.root.position = snapCoordinates;
+                triggeredMarker.ToggleIsAttached(true);
+            }            
+            previewObject.SetActive(false);
+            previewObject.transform.position = Vector3.zero;
+        }
     }
-
     public virtual void OnMouseDown()
     {
         mZCoord = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
-
+        if(triggeredMarker!=null)
+        {
+            triggeredMarker.ToggleIsAttached(false);
+        }
+        
         // Store offset = gameobject world pos - mouse world pos
         mOffset = gameObject.transform.root.position - GetMouseAsWorldPoint();
         rotation = transform.localRotation.eulerAngles;
@@ -70,6 +107,26 @@ public class DraggableForce : MonoBehaviour
         isButtonDown = true;
         //print(rotation);
         ResetObjectColor();
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        Debug.Log("Detection: " + collider.name);
+        if (collider.tag == snapTag)
+        {
+            triggeredMarker = collider.GetComponent<Marker>();
+            snapCoordinates = triggeredMarker.GetCoordinate();
+            
+            previewObject.transform.position = snapCoordinates;
+            previewObject.SetActive(true);
+            isSnap = true;
+        }
+    }
+    void OnTriggerExit(Collider collider)
+    {
+        previewObject.SetActive(false);
+        isSnap = false;
+        //triggeredMarker = null;
     }
 
     public virtual void OnMouseUp()
@@ -92,10 +149,12 @@ public class DraggableForce : MonoBehaviour
 
     void OnMouseEnter()
     {
+        //isSnap = false;
         if (!isButtonDown)
         {
             if (isMovable)
             {
+                isMouseOver = true;
                 foreach (Renderer rnder in GetComponentsInChildren<Renderer>())
                 {
                     rnder.material.color = movableColor;
@@ -110,47 +169,24 @@ public class DraggableForce : MonoBehaviour
                 }
             }
         }
+        if (gridController != null)
+        {
+            gridController.ToggleDraggableClick(true);
+        }
     }
 
     void OnMouseExit()
     {
         ResetObjectColor();
-    }
-
-    public virtual void OnMouseDrag()
-    {
-
-        if (isMovable)
+        if(!isButtonDown)
         {
-            Move();
+            isMouseOver = false;
         }
-        else if (isRotatable)
+        
+        if (gridController != null)
         {
-            Rotate();
+            gridController.ToggleDraggableClick(false);
         }
-    }
-    protected virtual void Move()
-    {
-        Vector3 mv = new Vector3(0f,0f,0f);
-        Vector3 force;
-        mv = transform.position;
-        if (isMovableX)
-        {
-            mv.x = GetMouseAsWorldPoint().x + mOffset.x;
-        }
-        else if (isMovableY)
-        {
-            //rt.y = rotation.y-(GetMouseAsWorldPoint() + rotation).x*rotationScale;
-            mv.y = (GetMouseAsWorldPoint()).y + mOffset.y;
-        }
-        else if (isMovableZ)
-        {
-            //rt.z = rotation.z-(GetMouseAsWorldPoint() + rotation).x*rotationScale;
-            mv.z = GetMouseAsWorldPoint().z + mOffset.z;
-        }
-        force = (mv - transform.position) * forceMultiplier;
-        rb.AddForce(force, ForceMode.Force);
-        //transform.root.position = mv;
     }
 
     protected virtual void Rotate()
@@ -162,12 +198,10 @@ public class DraggableForce : MonoBehaviour
         }
         else if (isRotatableY)
         {
-            //rt.y = rotation.y-(GetMouseAsWorldPoint() + rotation).x*rotationScale;
             rt.y = rotation.y - (GetMouseAsWorldPoint()).x * rotationScale;
         }
         else if (isRotatableZ)
         {
-            //rt.z = rotation.z-(GetMouseAsWorldPoint() + rotation).x*rotationScale;
             rt.z = rotation.z - (GetMouseAsWorldPoint()).x * rotationScale;
         }
         transform.localRotation = Quaternion.Euler(rt);
